@@ -2,6 +2,25 @@
 
 운동 보조 파트너 매칭 서비스
 
+## 실행방법
+
+
+.env 파일 생성 (.env.sample 복사)
+```bash
+cp .env.sample .env
+```
+.env 파일에 환경변수 설정 후
+
+개발 모드
+```
+yarn dev
+```
+빌드 및 배포
+```
+yarn start
+```
+
+
 ## Commit Convention
 
 Feat : 새로운 기능을 추가하는 경우
