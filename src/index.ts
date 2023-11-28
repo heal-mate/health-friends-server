@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import "dotenv/config";
-import router from "./router/index.js";
+import router from "./routes/index.js";
 
 const { PORT, MONGODB_URL, FRONTEND_URL } = process.env;
 
