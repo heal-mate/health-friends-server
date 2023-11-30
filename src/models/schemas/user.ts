@@ -23,10 +23,12 @@ export type Condition<T = "POINT"> = {
   deadLift: T extends "RANGE" ? [number, number] | null : number;
   fitnessYears: T extends "RANGE" ? [number, number] | null : number;
   gender: T extends "RANGE" ? "MALE" | "FEMAIL" | null : "MALE" | "FEMAIL";
-  location: T extends "RANGE" ? Location[] | null : Location;
+  location: T extends "RANGE"
+    ? typeof LOCATION | null
+    : (typeof LOCATION)[number];
 };
 
-export const UserSchema = new Schema({
+export const UserSchema = new Schema<User>({
   email: {
     type: String,
     unique: true,
@@ -49,47 +51,66 @@ export const UserSchema = new Schema({
     required: true,
   },
   condition: {
-    benchPress: {
-      type: Number,
-    },
-    squat: {
-      type: Number,
-    },
-    deadLift: {
-      type: Number,
-    },
-    fitnessYears: {
-      type: Number,
-    },
-    gender: {
-      type: String,
-      enum: GENDER,
-    },
-    location: {
-      type: String,
-      enum: LOCATION,
+    required: true,
+    type: {
+      benchPress: {
+        type: Number,
+        required: true,
+      },
+      squat: {
+        type: Number,
+        required: true,
+      },
+      deadLift: {
+        type: Number,
+        required: true,
+      },
+      fitnessYears: {
+        type: Number,
+        required: true,
+      },
+      gender: {
+        type: String,
+        enum: GENDER,
+        required: true,
+      },
+      location: {
+        type: String,
+        enum: LOCATION,
+        required: true,
+      },
     },
   },
   conditionExpect: {
-    benchPress: {
-      type: [Number, Number],
-    },
-    squat: {
-      type: [Number, Number],
-    },
-    deadLift: {
-      type: [Number, Number],
-    },
-    fitnessYears: {
-      type: [Number, Number],
-    },
-    gender: {
-      type: String,
-      enum: GENDER,
-    },
-    location: {
-      type: [String],
-      enum: LOCATION,
+    required: true,
+    default: null,
+    type: {
+      benchPress: {
+        type: [Number, Number],
+        default: null,
+      },
+      squat: {
+        type: [Number, Number],
+        default: null,
+      },
+      deadLift: {
+        type: [Number, Number],
+        default: null,
+      },
+      fitnessYears: {
+        type: [Number, Number],
+        default: null,
+      },
+      gender: {
+        type: String,
+        enum: GENDER,
+        default: null,
+      },
+      location: {
+        type: [String],
+        enum: LOCATION,
+        default: null,
+      },
     },
   },
   matchIds: [
