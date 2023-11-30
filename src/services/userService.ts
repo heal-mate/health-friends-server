@@ -3,6 +3,7 @@ import { User } from "../models/index.js";
 import { LOCATION } from "../config/constants.js";
 import { Condition } from "../models/schemas/user.js";
 
+// TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
 const MOCK_USER_ID = "6564aabc5235915edc6b3510";
 
 const userService = {
@@ -27,26 +28,18 @@ const userService = {
       matchExceptUserIds,
     } = userRequested;
 
+    // 나의 conditionExpect와 유저들의 condition을 비교하는 AND 쿼리 생성
     const queries = makeRecommendUserQuery({
       myConditionExpect,
       matchExceptUserIds,
     });
 
-    const findByMyConditionExpect = async () => {
-      if (queries.length <= 1) {
-        // 쿼리가 1개 있을 때는 _id not_equal 쿼리임 (자기 자신을 제외하는 쿼리)
-        return User.find({ ...queries[0] }).lean();
-      } else if (queries.length > 1) {
-        return User.find({ $and: queries }).lean();
-      }
-    };
-
-    const usersRecommended = await findByMyConditionExpect();
+    const usersRecommended = await User.find({ $and: queries }).lean();
     if (!usersRecommended) return [];
 
     return (
       usersRecommended
-        // 나의 condition과 추천된 유저들의 conditionExpect를 비교, 필터링하는 작업
+        // 나의 condition과 추천된 유저들의 conditionExpect를 비교, 필터링
         .filter(makeRecommendUserFilterCallback(myCondition))
         .slice(0, 5)
     );
@@ -55,6 +48,7 @@ const userService = {
 
 export default userService;
 
+// 나의 conditionExpect와 유저들의 condition을 비교하는 AND 쿼리 생성 함수
 function makeRecommendUserQuery({
   myConditionExpect,
   matchExceptUserIds,
@@ -144,6 +138,7 @@ function makeRecommendUserQuery({
   return queries;
 }
 
+// 나의 condition과 추천된 유저들의 conditionExpect를 비교, 필터링
 function makeRecommendUserFilterCallback(myCondition: Condition<"POINT">) {
   return ({ conditionExpect }: { conditionExpect: Condition<"RANGE"> }) => {
     const { benchPress, squat, deadLift, fitnessYears, gender, location } =
