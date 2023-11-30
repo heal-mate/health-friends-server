@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { User } from "../models/index.js";
 import { LOCATION } from "../config/constants.js";
+import { Condition } from "../models/schemas/user.js";
 
 const MOCK_USER_ID = "6564aabc5235915edc6b3510";
 
@@ -20,63 +21,16 @@ const userService = {
     const userRequested = await User.findById(MOCK_USER_ID).lean();
     if (!userRequested) return;
 
-    const { condition: myCondition, conditionExpect: myConditionExpect } =
-      userRequested;
+    const {
+      condition: myCondition,
+      conditionExpect: myConditionExpect,
+      matchExceptUserIds,
+    } = userRequested;
 
-    // 나의 condtionExpect와, 다른 유저들의 condition를 비교하기 위한 쿼리 타입
-    type Query = {
-      [key: string]:
-        | {
-            $gte: number;
-            $lte: number;
-          }
-        | {
-            $in: typeof LOCATION;
-          }
-        | {
-            $eq: string;
-          }
-        | {
-            $ne: Types.ObjectId;
-          };
-    };
-
-    // 나의 condtionExpect와, 다른 유저들의 condition을 비교하기 위한 AND 쿼리 배열
-    const queries = Object.entries(myConditionExpect)
-      .flatMap<Query>(([key, value]) => {
-        if (!value && key === "_id") return [];
-
-        if (value instanceof Array && typeof value[0] === "number") {
-          return [
-            {
-              [`condition.${key}`]: {
-                $gte: value[0],
-                $lte: value[1],
-              },
-            },
-          ];
-        } else if (value instanceof Array && typeof value[0] === "string") {
-          return [
-            {
-              [`condition.${key}`]: {
-                $in: value,
-              },
-            },
-          ];
-        } else if (typeof value === "string") {
-          return [
-            {
-              [`condition.${key}`]: {
-                $eq: value,
-              },
-            },
-          ];
-        } else {
-          return [];
-        }
-      })
-      // 자기 자신을 제외하는 쿼리
-      .concat({ _id: { $ne: new Types.ObjectId(MOCK_USER_ID) } });
+    const queries = makeRecommendUserQuery({
+      myConditionExpect,
+      matchExceptUserIds,
+    });
 
     const findByMyConditionExpect = async () => {
       if (queries.length <= 1) {
@@ -88,45 +42,149 @@ const userService = {
     };
 
     const usersRecommended = await findByMyConditionExpect();
-
     if (!usersRecommended) return [];
 
     return (
       usersRecommended
-        // 나의 condition과 다른 유저들의 conditionExpect를 비교, 필터링하는 작업
-        .filter((userRecommended) => {
-          return !Object.entries(userRecommended.conditionExpect).some(
-            ([key, othersExpectedCondition]) => {
-              if (!othersExpectedCondition) return false;
-              if (
-                othersExpectedCondition instanceof Array &&
-                typeof othersExpectedCondition[0] === "number"
-              ) {
-                const myConditionAssert = (myCondition as any)[key] as number;
-                return (
-                  myConditionAssert < othersExpectedCondition[0] ||
-                  myConditionAssert > othersExpectedCondition[1]
-                );
-              } else if (
-                othersExpectedCondition instanceof Array &&
-                typeof othersExpectedCondition[0] === "string"
-              ) {
-                const myConditionAssert = (myCondition as any)[
-                  key
-                ] as (typeof LOCATION)[number];
-                return !othersExpectedCondition.includes(myConditionAssert);
-              } else if (typeof othersExpectedCondition !== "string") {
-                const myConditionAssert = (myCondition as any)[key] as string;
-                return myConditionAssert !== othersExpectedCondition;
-              } else {
-                return false;
-              }
-            },
-          );
-        })
+        // 나의 condition과 추천된 유저들의 conditionExpect를 비교, 필터링하는 작업
+        .filter(makeRecommendUserFilterCallback(myCondition))
         .slice(0, 5)
     );
   },
 };
 
 export default userService;
+
+function makeRecommendUserQuery({
+  myConditionExpect,
+  matchExceptUserIds,
+}: {
+  myConditionExpect: Condition<"RANGE">;
+  matchExceptUserIds: Types.ObjectId[];
+}) {
+  // 나의 condtionExpect와, 다른 유저들의 condition를 비교하기 위한 쿼리 타입
+  type Query = {
+    [key: string]:
+      | {
+          $gte: number;
+          $lte: number;
+        }
+      | {
+          $in: typeof LOCATION;
+        }
+      | {
+          $eq: string;
+        }
+      | {
+          $ne: Types.ObjectId;
+        }
+      | {
+          $nin: Types.ObjectId[];
+        };
+  };
+
+  // 나의 condtionExpect와, 다른 유저들의 condition을 비교하기 위한 AND 쿼리 배열
+  const queries = [
+    // 자기 자신을 제외하는 쿼리
+    { _id: { $ne: new Types.ObjectId(MOCK_USER_ID) } },
+    // 제외할 유저 목록(매칭중, 블랙리스트 등)을 제외하는 쿼리
+    { _id: { $nin: matchExceptUserIds } },
+  ] as Query[];
+  const { benchPress, squat, deadLift, fitnessYears, gender, location } =
+    myConditionExpect;
+
+  if (benchPress) {
+    queries.push({
+      "condition.benchPress": {
+        $gte: benchPress[0],
+        $lte: benchPress[1],
+      },
+    });
+  }
+
+  if (squat) {
+    queries.push({
+      "condition.squat": {
+        $gte: squat[0],
+        $lte: squat[1],
+      },
+    });
+  }
+  if (deadLift) {
+    queries.push({
+      "condition.deadLift": {
+        $gte: deadLift[0],
+        $lte: deadLift[1],
+      },
+    });
+  }
+  if (fitnessYears) {
+    queries.push({
+      "condition.fitnessYears": {
+        $gte: fitnessYears[0],
+        $lte: fitnessYears[1],
+      },
+    });
+  }
+  if (gender) {
+    queries.push({
+      "condition.gender": {
+        $eq: gender,
+      },
+    });
+  }
+  if (location) {
+    queries.push({
+      "condition.location": {
+        $in: location,
+      },
+    });
+  }
+
+  return queries;
+}
+
+function makeRecommendUserFilterCallback(myCondition: Condition<"POINT">) {
+  return ({ conditionExpect }: { conditionExpect: Condition<"RANGE"> }) => {
+    const { benchPress, squat, deadLift, fitnessYears, gender, location } =
+      conditionExpect;
+    if (
+      benchPress &&
+      (benchPress[0] > myCondition.benchPress ||
+        benchPress[1] < myCondition.benchPress)
+    ) {
+      return false;
+    }
+
+    if (
+      squat &&
+      (squat[0] > myCondition.squat || squat[1] < myCondition.squat)
+    ) {
+      return false;
+    }
+
+    if (
+      deadLift &&
+      (deadLift[0] > myCondition.deadLift || deadLift[1] < myCondition.deadLift)
+    ) {
+      return false;
+    }
+
+    if (
+      fitnessYears &&
+      (fitnessYears[0] > myCondition.fitnessYears ||
+        fitnessYears[1] < myCondition.fitnessYears)
+    ) {
+      return false;
+    }
+
+    if (gender && gender !== myCondition.gender) {
+      return false;
+    }
+
+    if (location && !location.includes(myCondition.location)) {
+      return false;
+    }
+    return true;
+  };
+}

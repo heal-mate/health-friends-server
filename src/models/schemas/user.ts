@@ -1,12 +1,12 @@
 import { ObjectId } from "mongodb";
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { GENDER, LOCATION } from "../../config/constants.js";
 import { modelName as matchModelName } from "./match.js";
 
 export const modelName = "User";
 
 export type User = {
-  id: string;
+  _id: Types.ObjectId;
   email: string;
   tel: string;
   nickName: string;
@@ -14,7 +14,8 @@ export type User = {
   introduction: string;
   condition: Condition<"POINT">;
   conditionExpect: Condition<"RANGE">;
-  matchIds: Array<string>;
+  matchIds: Array<Types.ObjectId>;
+  matchExceptUserIds: Array<Types.ObjectId>;
 };
 
 export type Condition<T = "POINT"> = {
@@ -117,6 +118,12 @@ export const UserSchema = new Schema<User>({
     {
       type: ObjectId,
       ref: matchModelName,
+    },
+  ],
+  matchExceptUserIds: [
+    {
+      type: ObjectId,
+      ref: modelName,
     },
   ],
 });
