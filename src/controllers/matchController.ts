@@ -66,9 +66,13 @@ const matchController = {
     }
 
     const newMatchInfo = await matchService.acceptMatch({ matchId });
+
+    // TODO: 에러 핸들링 :
+    if (!newMatchInfo) throw new Error("cannot find newMatchInfo");
+
     // 알람 등록(메이트 수락)
     await alertService.createAlert({
-      matchId: newMatchInfo!._id,
+      matchId: newMatchInfo._id,
       status: matchStatusDict.accepted,
     });
 
@@ -84,9 +88,13 @@ const matchController = {
     }
 
     const newMatchInfo = await matchService.rejectMatch({ matchId });
+
+    // TODO: 에러 핸들링 :
+    if (!newMatchInfo) throw new Error("cannot find newMatchInfo");
+
     // 알람 등록(메이트 거절)
     await alertService.createAlert({
-      matchId: newMatchInfo!._id,
+      matchId: newMatchInfo._id,
       status: matchStatusDict.rejected,
     });
     res.status(200).end();

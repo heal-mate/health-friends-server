@@ -29,7 +29,7 @@ const matchService = {
       updatedAt: new Date(),
     } as Omit<MatchSchema, "_id">;
 
-    const res = Match.create(matchInfo);
+    const res = await Match.create(matchInfo);
     return res;
   },
 
