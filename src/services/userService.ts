@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { User } from "../models/index.js";
+import { User as UserType } from "../models/schemas/user.js";
 import { LOCATION } from "../config/constants.js";
 import { Condition } from "../models/schemas/user.js";
 
@@ -43,6 +44,19 @@ const userService = {
         .filter(makeRecommendUserFilterCallback(myCondition))
         .slice(0, 5)
     );
+  },
+
+  async getUserMain() {
+    const user = await User.findOne({ _id: "65654d023948df4dfd0cf108" });
+    return user;
+  },
+
+  async UpdateMe(data: UserType) {
+    try {
+      await User.updateOne({ _id: "65654d023948df4dfd0cf108" }, data);
+    } catch (error) {
+      throw new Error("Update failed.");
+    }
   },
 };
 
