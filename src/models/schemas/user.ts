@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
-import { Types, Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { GENDER, LOCATION } from "../../config/constants.js";
-import { modelName as matchModelName } from "./match.js";
+import { MATCH_MODEL_NAME } from "./match.js";
 
-export const modelName = "User";
+export const USER_MODEL_NAME = "User";
 
 export type User = {
   _id: Types.ObjectId;
@@ -14,7 +14,8 @@ export type User = {
   introduction: string;
   condition: Condition<"POINT">;
   conditionExpect: Condition<"RANGE">;
-  matchIds: Array<string>;
+  matchIds: Array<Types.ObjectId>;
+  matchExceptUserIds: Array<Types.ObjectId>;
 };
 
 export type Condition<T = "POINT"> = {
@@ -23,10 +24,12 @@ export type Condition<T = "POINT"> = {
   deadLift: T extends "RANGE" ? [number, number] | null : number;
   fitnessYears: T extends "RANGE" ? [number, number] | null : number;
   gender: T extends "RANGE" ? "MALE" | "FEMAIL" | null : "MALE" | "FEMAIL";
-  location: T extends "RANGE" ? Location[] | null : Location;
+  location: T extends "RANGE"
+    ? typeof LOCATION | null
+    : (typeof LOCATION)[number];
 };
 
-export const UserSchema = new Schema({
+export const UserSchema = new Schema<User>({
   email: {
     type: String,
     unique: true,
@@ -49,53 +52,78 @@ export const UserSchema = new Schema({
     required: true,
   },
   condition: {
-    benchPress: {
-      type: Number,
-    },
-    squat: {
-      type: Number,
-    },
-    deadLift: {
-      type: Number,
-    },
-    fitnessYears: {
-      type: Number,
-    },
-    gender: {
-      type: String,
-      enum: GENDER,
-    },
-    location: {
-      type: String,
-      enum: LOCATION,
+    required: true,
+    type: {
+      benchPress: {
+        type: Number,
+        required: true,
+      },
+      squat: {
+        type: Number,
+        required: true,
+      },
+      deadLift: {
+        type: Number,
+        required: true,
+      },
+      fitnessYears: {
+        type: Number,
+        required: true,
+      },
+      gender: {
+        type: String,
+        enum: GENDER,
+        required: true,
+      },
+      location: {
+        type: String,
+        enum: LOCATION,
+        required: true,
+      },
     },
   },
   conditionExpect: {
-    benchPress: {
-      type: [Number, Number],
-    },
-    squat: {
-      type: [Number, Number],
-    },
-    deadLift: {
-      type: [Number, Number],
-    },
-    fitnessYears: {
-      type: [Number, Number],
-    },
-    gender: {
-      type: String,
-      enum: GENDER,
-    },
-    location: {
-      type: [String],
-      enum: LOCATION,
+    required: true,
+    default: null,
+    type: {
+      benchPress: {
+        type: [Number, Number],
+        default: null,
+      },
+      squat: {
+        type: [Number, Number],
+        default: null,
+      },
+      deadLift: {
+        type: [Number, Number],
+        default: null,
+      },
+      fitnessYears: {
+        type: [Number, Number],
+        default: null,
+      },
+      gender: {
+        type: String,
+        enum: GENDER,
+        default: null,
+      },
+      location: {
+        type: [String],
+        enum: LOCATION,
+        default: null,
+      },
     },
   },
   matchIds: [
     {
       type: ObjectId,
-      ref: matchModelName,
+      ref: MATCH_MODEL_NAME,
+    },
+  ],
+  matchExceptUserIds: [
+    {
+      type: ObjectId,
+      ref: USER_MODEL_NAME,
     },
   ],
 });
