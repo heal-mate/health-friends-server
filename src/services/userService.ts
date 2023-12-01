@@ -58,6 +58,13 @@ const userService = {
       throw new Error("Update failed.");
     }
   },
+
+  async updateConditionExpect(conditionExpect: Condition<"RANGE">) {
+    await User.updateOne(
+      { _id: "65654d023948df4dfd0cf108" },
+      { conditionExpect },
+    );
+  },
 };
 
 export default userService;

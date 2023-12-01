@@ -21,6 +21,14 @@ const userController = {
     res.status(200).json(users);
   },
 
+  async updateConditionExpect(req: Request, res: Response) {
+    const conditionExpect = req.body;
+
+    await userService.updateConditionExpect(conditionExpect);
+
+    res.status(200).end();
+  },
+
   async getUserMine(req: Request, res: Response) {
     // const {userId} = req?.userId;
     const user = await userService.getUserMain();

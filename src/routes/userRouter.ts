@@ -6,6 +6,8 @@ const router = express.Router();
 router.get("/recommend", userController.getUserRecommend);
 router.get("/detail/:id", userController.getUser);
 
+// 필터 조건 변경
+router.patch("/conditionExpect", userController.updateConditionExpect);
 // 자기 정보 받아오기.
 router.get("/mine", userController.getUserMine);
 // 자기 정보 업데이트.
