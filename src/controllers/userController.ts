@@ -20,6 +20,14 @@ const userController = {
     const users = await userService.getUserRecommend();
     res.status(200).json(users);
   },
+
+  async updateConditionExpect(req: Request, res: Response) {
+    const conditionExpect = req.body;
+
+    await userService.updateConditionExpect(conditionExpect);
+
+    res.status(200).end();
+  },
 };
 
 export default userController;

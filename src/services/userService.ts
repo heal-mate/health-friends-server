@@ -1,5 +1,7 @@
 import { Types } from "mongoose";
 import { User } from "../models/index.js";
+import { Condition } from "../models/schemas/user.js";
+import { ObjectId } from "mongodb";
 
 const userService = {
   async getUser({ id }: { id: Types.ObjectId }) {
@@ -13,6 +15,13 @@ const userService = {
     const users = await User.find({}).limit(5);
 
     return users;
+  },
+
+  async updateConditionExpect(conditionExpect: Condition<"RANGE">) {
+    await User.updateOne(
+      { _id: "65654d023948df4dfd0cf108" },
+      { conditionExpect },
+    );
   },
 };
 
