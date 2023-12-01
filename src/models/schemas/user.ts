@@ -1,12 +1,12 @@
 import { ObjectId } from "mongodb";
-import { Schema } from "mongoose";
+import { Types, Schema } from "mongoose";
 import { GENDER, LOCATION } from "../../config/constants.js";
 import { modelName as matchModelName } from "./match.js";
 
 export const modelName = "User";
 
 export type User = {
-  id: string;
+  _id: Types.ObjectId;
   email: string;
   tel: string;
   nickName: string;
