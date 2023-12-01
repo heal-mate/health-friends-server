@@ -29,7 +29,7 @@ const matchService = {
       updatedAt: new Date(),
     } as Omit<MatchSchema, "_id">;
 
-    await Match.create(matchInfo);
+    const newMatch = await Match.create(matchInfo);
 
     // TODO: 트랜젝션 구현
     // 매치 생성 후 각각의 유저에게 서로를 추천 목록에 반영하지 않도록 exceptUserIds 배열에 추가
@@ -42,6 +42,8 @@ const matchService = {
     if (!receiver) throw new Error("cannot create Match");
     receiver.matchExceptUserIds.push(new Types.ObjectId(MOCK_USER_ID));
     await receiver.save();
+
+    return newMatch;
   },
 
   async cancelMatch({ matchId }: { matchId: Types.ObjectId }) {

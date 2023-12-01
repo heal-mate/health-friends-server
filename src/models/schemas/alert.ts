@@ -1,6 +1,7 @@
 import { Types, Schema } from "mongoose";
 import { MatchStatus } from "../../config/constants";
-export const modelName = "Alert";
+import { MATCH_MODEL_NAME } from "./match.js";
+export const ALERT_MODEL_NAME = "Alert";
 
 export type AlertSchema = {
   _id: Types.ObjectId;
@@ -14,7 +15,7 @@ export const AlertSchema = new Schema<AlertSchema>(
   {
     matchId: {
       type: Schema.Types.ObjectId,
-      ref: "Match",
+      ref: MATCH_MODEL_NAME,
       required: true,
     },
     status: {

@@ -22,7 +22,13 @@ const alertService = {
       {
         $match: {
           $or: [
-            { "matchInfo.senderId": userId },
+            {
+              "matchInfo.senderId": userId,
+              $or: [
+                { status: matchStatusDict.accepted },
+                { status: matchStatusDict.rejected },
+              ],
+            },
             { "matchInfo.receiverId": userId, status: matchStatusDict.waiting },
           ],
         },

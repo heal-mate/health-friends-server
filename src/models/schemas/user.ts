@@ -104,13 +104,13 @@ export const UserSchema = new Schema<User>({
       },
       gender: {
         type: String,
-        enum: GENDER,
-        default: null,
+        enum: [...GENDER, null],
+        required: false,
       },
       location: {
         type: [String],
-        enum: LOCATION,
-        default: null,
+        enum: [...LOCATION, null],
+        required: false,
       },
     },
   },

@@ -47,23 +47,20 @@ const userService = {
   },
 
   async getUserMain() {
-    const user = await User.findOne({ _id: "65654d023948df4dfd0cf108" });
+    const user = await User.findOne({ _id: MOCK_USER_ID });
     return user;
   },
 
   async UpdateMe(data: UserType) {
     try {
-      await User.updateOne({ _id: "65654d023948df4dfd0cf108" }, data);
+      await User.updateOne({ _id: MOCK_USER_ID }, data);
     } catch (error) {
       throw new Error("Update failed.");
     }
   },
 
   async updateConditionExpect(conditionExpect: Condition<"RANGE">) {
-    await User.updateOne(
-      { _id: "65654d023948df4dfd0cf108" },
-      { conditionExpect },
-    );
+    await User.updateOne({ _id: MOCK_USER_ID }, { conditionExpect });
   },
 };
 

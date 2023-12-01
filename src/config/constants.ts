@@ -7,6 +7,7 @@ export const LOCATION = [
   "역삼",
   "대치",
   "개포",
+  "강남",
 ] as const;
 
 export const GENDER = ["MALE", "FEMALE"] as const;

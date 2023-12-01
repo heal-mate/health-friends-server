@@ -9,7 +9,7 @@ interface RequestHasBody<T> extends Request {
 }
 
 // TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
-const MOCK_USER_ID = "65654d023948df4dfd0cf108";
+// const MOCK_USER_ID = "65654d023948df4dfd0cf108";
 
 const matchController = {
   async getMatchesReceived(_: any, res: Response) {
