@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
 import { Schema, Types } from "mongoose";
 import { GENDER, LOCATION } from "../../config/constants.js";
-import { modelName as matchModelName } from "./match.js";
+import { MATCH_MODEL_NAME } from "./match.js";
 
-export const modelName = "User";
+export const USER_MODEL_NAME = "User";
 
 export type User = {
   _id: Types.ObjectId;
@@ -117,13 +117,13 @@ export const UserSchema = new Schema<User>({
   matchIds: [
     {
       type: ObjectId,
-      ref: matchModelName,
+      ref: MATCH_MODEL_NAME,
     },
   ],
   matchExceptUserIds: [
     {
       type: ObjectId,
-      ref: modelName,
+      ref: USER_MODEL_NAME,
     },
   ],
 });
