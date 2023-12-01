@@ -28,6 +28,21 @@ const userController = {
 
     res.status(200).end();
   },
+
+  async getUserMine(req: Request, res: Response) {
+    // const {userId} = req?.userId;
+    const user = await userService.getUserMain();
+
+    res.status(200).json(user);
+  },
+  async updateMe(req: Request, res: Response) {
+    // const {userId} = req?.userId;
+    const user = req.body;
+
+    await userService.UpdateMe(user);
+
+    res.status(200).end();
+  },
 };
 
 export default userController;
