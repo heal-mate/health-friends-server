@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import "dotenv/config";
 import router from "./routes/index.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const { PORT, MONGODB_URL, FRONTEND_URL } = process.env;
 
@@ -28,6 +29,9 @@ app.use(
 );
 
 app.use("/api", router);
+
+// 오류처리 미들웨어
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`listening at http://localhost:${PORT}`);

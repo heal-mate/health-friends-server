@@ -8,6 +8,7 @@ export const USER_MODEL_NAME = "User";
 export type User = {
   _id: Types.ObjectId;
   email: string;
+  password: string;
   tel: string;
   nickName: string;
   profileImageSrc: string;
@@ -16,6 +17,8 @@ export type User = {
   conditionExpect: Condition<"RANGE">;
   matchIds: Array<Types.ObjectId>;
   matchExceptUserIds: Array<Types.ObjectId>;
+  refreshToken: string;
+  deletedAt: Date;
 };
 
 export type Condition<T = "POINT"> = {
@@ -23,107 +26,119 @@ export type Condition<T = "POINT"> = {
   squat: T extends "RANGE" ? [number, number] | null : number;
   deadLift: T extends "RANGE" ? [number, number] | null : number;
   fitnessYears: T extends "RANGE" ? [number, number] | null : number;
-  gender: T extends "RANGE" ? "MALE" | "FEMAIL" | null : "MALE" | "FEMAIL";
+  gender: T extends "RANGE" ? "MALE" | "FEMALE" | null : "MALE" | "FEMALE";
   location: T extends "RANGE"
     ? typeof LOCATION | null
     : (typeof LOCATION)[number];
 };
 
-export const UserSchema = new Schema<User>({
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  tel: {
-    type: String,
-    required: true,
-  },
-  nickName: {
-    type: String,
-    required: true,
-  },
-  profileImageSrc: {
-    type: String,
-    required: true,
-  },
-  introduction: {
-    type: String,
-    required: true,
-  },
-  condition: {
-    required: true,
-    type: {
-      benchPress: {
-        type: Number,
-        required: true,
-      },
-      squat: {
-        type: Number,
-        required: true,
-      },
-      deadLift: {
-        type: Number,
-        required: true,
-      },
-      fitnessYears: {
-        type: Number,
-        required: true,
-      },
-      gender: {
-        type: String,
-        enum: GENDER,
-        required: true,
-      },
-      location: {
-        type: String,
-        enum: LOCATION,
-        required: true,
+export const UserSchema = new Schema<User>(
+  {
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    // 영문대문자, 영문소문자, 숫자, 특수문자 조합으로 이루어진 8~15자의 문자열
+    password: { type: String, minlength: 8, required: true },
+    tel: {
+      type: String,
+      required: true,
+    },
+    nickName: {
+      type: String,
+      required: true,
+    },
+    profileImageSrc: {
+      type: String,
+      required: true,
+    },
+    introduction: {
+      type: String,
+      required: true,
+    },
+    condition: {
+      required: true,
+      type: {
+        benchPress: {
+          type: Number,
+          required: true,
+        },
+        squat: {
+          type: Number,
+          required: true,
+        },
+        deadLift: {
+          type: Number,
+          required: true,
+        },
+        fitnessYears: {
+          type: Number,
+          required: true,
+        },
+        gender: {
+          type: String,
+          enum: GENDER,
+          required: true,
+        },
+        location: {
+          type: String,
+          enum: LOCATION,
+          required: true,
+        },
       },
     },
+    conditionExpect: {
+      required: true,
+      default: null,
+      type: {
+        benchPress: {
+          type: [Number, Number],
+          default: null,
+        },
+        squat: {
+          type: [Number, Number],
+          default: null,
+        },
+        deadLift: {
+          type: [Number, Number],
+          default: null,
+        },
+        fitnessYears: {
+          type: [Number, Number],
+          default: null,
+        },
+        gender: {
+          type: String,
+          enum: [...GENDER, null],
+          required: false,
+        },
+        location: {
+          type: [String],
+          enum: [...LOCATION, null],
+          required: false,
+        },
+      },
+    },
+    deletedAt: {
+      type: Date,
+      required: false,
+    },
+    refreshToken: { type: String, required: false },
+    matchIds: [
+      {
+        type: ObjectId,
+        ref: MATCH_MODEL_NAME,
+      },
+    ],
+    matchExceptUserIds: [
+      {
+        type: ObjectId,
+        ref: USER_MODEL_NAME,
+      },
+    ],
   },
-  conditionExpect: {
-    required: true,
-    default: null,
-    type: {
-      benchPress: {
-        type: [Number, Number],
-        default: null,
-      },
-      squat: {
-        type: [Number, Number],
-        default: null,
-      },
-      deadLift: {
-        type: [Number, Number],
-        default: null,
-      },
-      fitnessYears: {
-        type: [Number, Number],
-        default: null,
-      },
-      gender: {
-        type: String,
-        enum: [...GENDER, null],
-        required: false,
-      },
-      location: {
-        type: [String],
-        enum: [...LOCATION, null],
-        required: false,
-      },
-    },
+  {
+    timestamps: true,
   },
-  matchIds: [
-    {
-      type: ObjectId,
-      ref: MATCH_MODEL_NAME,
-    },
-  ],
-  matchExceptUserIds: [
-    {
-      type: ObjectId,
-      ref: USER_MODEL_NAME,
-    },
-  ],
-});
+);

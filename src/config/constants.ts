@@ -21,3 +21,5 @@ export const matchStatusDict = {
 export const MATCH_STATUS = Object.values(matchStatusDict);
 
 export type MatchStatus = (typeof MATCH_STATUS)[number];
+
+export const MAX_EXPIRY_MINUTE = 5;
