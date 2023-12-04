@@ -31,10 +31,13 @@ const userController = {
 
   async getUserMine(req: Request, res: Response) {
     // const {userId} = req?.userId;
+    //jwt decoded info
+    console.log("jwt decoded info : ", res.locals.userInfo);
     const user = await userService.getUserMain();
 
     res.status(200).json(user);
   },
+
   async updateMe(req: Request, res: Response) {
     // const {userId} = req?.userId;
     const user = req.body;
@@ -42,6 +45,63 @@ const userController = {
     await userService.UpdateMe(user);
 
     res.status(200).end();
+  },
+
+  // 이메일 인증번호 보내기
+  async getAuthNo(req: Request, res: Response) {
+    try {
+      await userService.SendEmail(req.body.email);
+      res.status(200).end();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(400).json(err!.message);
+      }
+    }
+  },
+
+  // 인증번호 체크하기
+  async checkAuthNo(req: Request, res: Response) {
+    const { email, authCode } = req.body.data;
+    try {
+      await userService.CheckAuthMail({ email, authCode });
+      res.status(200).end();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(400).json(err!.message);
+      }
+    }
+  },
+
+  //회원가입하기
+  async registerUser(req: Request, res: Response) {
+    try {
+      const newUser = await userService.SignUp(req.body);
+      res.status(200).json(newUser);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(400).json(err!.message);
+      }
+    }
+  },
+
+  //로그인
+  async loginUser(req: Request, res: Response) {
+    try {
+      const user = await userService.SignIn(req.body.data);
+
+      res.cookie("accessToken", user?.accessToken, {
+        httpOnly: true,
+      });
+      res.cookie("refreshToken", user?.refreshToken, {
+        httpOnly: true, //  자바스크립트로 브라우저의 쿠키에 접근하는 것을 막기 위한 옵션
+      });
+
+      res.status(200).json(user);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(400).json(err!.message);
+      }
+    }
   },
 };
 
