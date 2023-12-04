@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { User, Auth } from "../models/index.js";
 import { User as UserType } from "../models/schemas/user.js";
-import { GENDER, LOCATION, MAX_EXPIRY_TIME } from "../config/constants.js";
+import { GENDER, LOCATION, MAX_EXPIRY_MINUTE } from "../config/constants.js";
 import { Condition } from "../models/schemas/user.js";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
@@ -79,7 +79,7 @@ const userService = {
       if (new Date() < authInfo.expiredTime) {
         isOver = false;
         throw new Error(
-          `이미 인증번호가 발송되었습니다. ${MAX_EXPIRY_TIME}뒤에 다시 요청해주세요.`,
+          `이미 인증번호가 발송되었습니다. ${MAX_EXPIRY_MINUTE}뒤에 다시 요청해주세요.`,
         );
       } else {
         isOver = true;
@@ -104,7 +104,7 @@ const userService = {
 
     // 인증코드 유효기간 설정
     let expiredTime = new Date();
-    expiredTime.setMinutes(expiredTime.getMinutes() + MAX_EXPIRY_TIME);
+    expiredTime.setMinutes(expiredTime.getMinutes() + MAX_EXPIRY_MINUTE);
 
     transport.sendMail(message, async (err, info) => {
       if (err) {
@@ -236,16 +236,20 @@ const userService = {
     });
 
     return {
-      id: user?._id,
-      nickName: user?.nickName,
-      email: user?.email,
-      tel: user?.tel,
-      profileImageSrc: user?.profileImageSrc,
-      introduction: user?.introduction,
-      condition: user?.condition,
-      conditionExpect: user?.conditionExpect,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      user: {
+        id: user?._id,
+        nickName: user?.nickName,
+        email: user?.email,
+        tel: user?.tel,
+        profileImageSrc: user?.profileImageSrc,
+        introduction: user?.introduction,
+        condition: user?.condition,
+        conditionExpect: user?.conditionExpect,
+      },
+      token: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
     };
   },
 };

@@ -14,9 +14,9 @@ router.get("/mine", authJWT, userController.getUserMine);
 // 자기 정보 업데이트.
 router.patch("/mine", userController.updateMe);
 // 인증메일 받기
-router.post("/getAuthMail", userController.getAuthNo);
+router.post("/getAuthMail", userController.getAuthCode);
 // 인증메일 확인
-router.post("/CheckAuthMail", userController.checkAuthNo);
+router.post("/CheckAuthMail", userController.checkAuthCode);
 // 회원가입
 router.post("/register", userController.registerUser);
 // 로그인
