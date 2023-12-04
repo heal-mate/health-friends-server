@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import userService from "../services/userService.js";
 import { Types } from "mongoose";
+import { User } from "../models/schemas/user.js";
 
 const userController = {
   async getUser(req: Request<{ id?: Types.ObjectId }>, res: Response) {
@@ -48,26 +49,26 @@ const userController = {
   },
 
   // 이메일 인증번호 보내기
-  async getAuthNo(req: Request, res: Response) {
+  async getAuthCode(req: Request, res: Response) {
     try {
       await userService.SendEmail(req.body.email);
       res.status(200).end();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        res.status(400).json(err!.message);
+        res.status(400).json(err.message);
       }
     }
   },
 
   // 인증번호 체크하기
-  async checkAuthNo(req: Request, res: Response) {
+  async checkAuthCode(req: Request, res: Response) {
     const { email, authCode } = req.body.data;
     try {
       await userService.CheckAuthMail({ email, authCode });
       res.status(200).end();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        res.status(400).json(err!.message);
+        res.status(400).json(err.message);
       }
     }
   },
@@ -79,7 +80,7 @@ const userController = {
       res.status(200).json(newUser);
     } catch (err: unknown) {
       if (err instanceof Error) {
-        res.status(400).json(err!.message);
+        res.status(400).json(err.message);
       }
     }
   },
@@ -87,12 +88,14 @@ const userController = {
   //로그인
   async loginUser(req: Request, res: Response) {
     try {
-      const user = await userService.SignIn(req.body.data);
+      const { user, token } = await userService.SignIn(req.body.data);
 
-      res.cookie("accessToken", user?.accessToken, {
+      if (!user) throw new Error("undefined user");
+
+      res.cookie("accessToken", token.accessToken, {
         httpOnly: true,
       });
-      res.cookie("refreshToken", user?.refreshToken, {
+      res.cookie("refreshToken", token.refreshToken, {
         httpOnly: true, //  자바스크립트로 브라우저의 쿠키에 접근하는 것을 막기 위한 옵션
       });
 

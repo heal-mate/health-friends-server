@@ -10,7 +10,7 @@ export const LOCATION = [
   "강남",
 ] as const;
 
-export const GENDER = ["MALE", "FEMALE", null] as const;
+export const GENDER = ["MALE", "FEMALE"] as const;
 
 export const matchStatusDict = {
   waiting: "WAITING",
@@ -22,4 +22,4 @@ export const MATCH_STATUS = Object.values(matchStatusDict);
 
 export type MatchStatus = (typeof MATCH_STATUS)[number];
 
-export const MAX_EXPIRY_TIME: number = 5;
+export const MAX_EXPIRY_MINUTE = 5;

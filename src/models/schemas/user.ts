@@ -26,7 +26,7 @@ export type Condition<T = "POINT"> = {
   squat: T extends "RANGE" ? [number, number] | null : number;
   deadLift: T extends "RANGE" ? [number, number] | null : number;
   fitnessYears: T extends "RANGE" ? [number, number] | null : number;
-  gender: T extends "RANGE" ? "MALE" | "FEMAIL" | null : "MALE" | "FEMAIL";
+  gender: T extends "RANGE" ? "MALE" | "FEMALE" | null : "MALE" | "FEMALE";
   location: T extends "RANGE"
     ? typeof LOCATION | null
     : (typeof LOCATION)[number];
@@ -80,7 +80,6 @@ export const UserSchema = new Schema<User>(
           type: String,
           enum: GENDER,
           required: true,
-          default: GENDER[2],
         },
         location: {
           type: String,
