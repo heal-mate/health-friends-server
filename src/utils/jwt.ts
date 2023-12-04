@@ -10,7 +10,6 @@ const createAcessToken = (user: UserType) => {
     _id: user._id,
     email: user.email,
     nickName: user.nickName,
-    gender: user.gender,
     tel: user.tel,
     profileImageSrc: user.profileImageSrc,
     introduction: user.introduction,

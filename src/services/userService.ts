@@ -154,8 +154,8 @@ const userService = {
   },
 
   //유저 회원가입
-  async SignUp(userDTO: UserType) {
-    const { tel, nickName, email, gender, password } = userDTO;
+  async SignUp(userDTO: UserType & { location: string; gender: string }) {
+    const { tel, nickName, email, gender, password, location } = userDTO;
 
     //이미 가입된 이메일이 있는지 찾아보기
     const isEmailSaved = await User.findOne({ email, deletedAt: null });
@@ -177,7 +177,6 @@ const userService = {
       tel,
       nickName,
       password,
-      gender,
       profileImageSrc: "basicProfile",
       introduction: "소개를 입력해주세요.",
       condition: {
@@ -185,8 +184,8 @@ const userService = {
         squat: 0,
         deadLift: 0,
         fitnessYears: 0,
-        gender: GENDER[0],
-        location: "송파",
+        gender,
+        location,
       },
       conditionExpect: {},
     });
@@ -202,7 +201,6 @@ const userService = {
       nickName: newUser?.nickName,
       email: newUser?.email,
       tel: newUser?.tel,
-      gender: newUser?.gender,
       profileImageSrc: newUser?.profileImageSrc,
       introduction: newUser?.introduction,
       condition: newUser?.condition,
@@ -242,7 +240,6 @@ const userService = {
       nickName: user?.nickName,
       email: user?.email,
       tel: user?.tel,
-      gender: user?.gender,
       profileImageSrc: user?.profileImageSrc,
       introduction: user?.introduction,
       condition: user?.condition,

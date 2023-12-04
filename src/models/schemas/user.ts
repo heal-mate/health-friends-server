@@ -11,7 +11,6 @@ export type User = {
   password: string;
   tel: string;
   nickName: string;
-  gender: string;
   profileImageSrc: string;
   introduction: string;
   condition: Condition<"POINT">;
@@ -55,10 +54,6 @@ export const UserSchema = new Schema<User>(
       required: true,
     },
     introduction: {
-      type: String,
-      required: true,
-    },
-    gender: {
       type: String,
       required: true,
     },
