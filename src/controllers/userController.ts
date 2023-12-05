@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import userService from "../services/userService.js";
 import { Types } from "mongoose";
+import request from "request";
+import fetch from "node-fetch";
 
 const userController = {
   async getUser(req: Request<{ id?: Types.ObjectId }>, res: Response) {
@@ -102,6 +104,42 @@ const userController = {
         res.status(400).json(err!.message);
       }
     }
+  },
+
+  //kakao api users login
+  async kakaoLogin(req: Request, res: Response) {
+    const { code } = req.params;
+
+    //auth token 받기
+    request.post(
+      "https://kauth.kakao.com/oauth/token",
+      {
+        form: {
+          grant_type: "authorization_code",
+          client_id: process.env.REST_API_KEY,
+          redirect_uri: process.env.Redirect_URI,
+          code,
+        },
+      },
+      function (error, httpResponse, body) {
+        const kakaoAccessToken = JSON.parse(body).access_token;
+
+        const options = {
+          uri: "https://kapi.kakao.com/v2/user/me",
+          headers: {
+            Authorization: "Bearer " + kakaoAccessToken,
+            "Content-type": "appication/x-www-form-urlencoded:charset=utf-8",
+          },
+        };
+
+        request.get(options, function (error, httpResponse, body) {
+          console.log("body : ", body);
+          console.log("error : ", error);
+        });
+      },
+    );
+
+    //받은 auth token으로 유저 정보 가져오기
   },
 };
 

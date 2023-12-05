@@ -21,5 +21,7 @@ router.post("/CheckAuthMail", userController.checkAuthNo);
 router.post("/register", userController.registerUser);
 // 로그인
 router.post("/login", userController.loginUser);
+// 카카오로그인
+router.get("/kakaoLogin/:code", userController.kakaoLogin);
 
 export default router;

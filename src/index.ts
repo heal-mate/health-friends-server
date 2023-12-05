@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import "dotenv/config";
+import bodyParser from "body-parser";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -27,7 +28,7 @@ app.use(
     origin: [FRONTEND_URL],
   }),
 );
-
+app.use(bodyParser.json());
 app.use("/api", router);
 
 // 오류처리 미들웨어
