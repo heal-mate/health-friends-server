@@ -2,27 +2,25 @@ import { Types } from "mongoose";
 import { Match, User } from "../models/index.js";
 import { MatchSchema } from "../models/schemas/match.js";
 import { matchStatusDict } from "../config/constants.js";
-import { resolve4 } from "dns";
-
-// TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
-// const MOCK_USER_ID = "65654d023948df4dfd0cf108"; //로니콜먼
-const MOCK_USER_ID = "6564aabc5235915edc6b3510"; //제이팍
 
 const matchService = {
-  async getMatchesReceived() {
-    return Match.find({ receiverId: new Types.ObjectId(MOCK_USER_ID) });
+  async getMatchesReceived(loginUserId: string) {
+    return Match.find({ receiverId: new Types.ObjectId(loginUserId) });
   },
 
-  async getMatchesSent() {
-    return Match.find({ senderId: new Types.ObjectId(MOCK_USER_ID) });
+  async getMatchesSent(loginUserId: string) {
+    return Match.find({ senderId: new Types.ObjectId(loginUserId) });
   },
 
-  async requestMatch(props: { userId: Types.ObjectId }) {
-    const { userId } = props;
+  async requestMatch(props: {
+    receiverId: Types.ObjectId;
+    loginUserId: string;
+  }) {
+    const { receiverId, loginUserId } = props;
 
     const matchInfo = {
-      receiverId: userId,
-      senderId: new Types.ObjectId(MOCK_USER_ID),
+      receiverId,
+      senderId: new Types.ObjectId(loginUserId),
       status: "WAITING",
       receiverDeleteAt: null,
       senderDeleteAt: null,
@@ -33,26 +31,32 @@ const matchService = {
 
     // TODO: 트랜젝션 구현
     // 매치 생성 후 각각의 유저에게 서로를 추천 목록에 반영하지 않도록 exceptUserIds 배열에 추가
-    const sender = await User.findById(MOCK_USER_ID);
+    const sender = await User.findById(loginUserId);
     if (!sender) throw new Error("cannot create Match");
-    sender.matchExceptUserIds.push(userId);
+    sender.matchExceptUserIds.push(receiverId);
     await sender.save();
 
-    const receiver = await User.findById(userId);
+    const receiver = await User.findById(receiverId);
     if (!receiver) throw new Error("cannot create Match");
-    receiver.matchExceptUserIds.push(new Types.ObjectId(MOCK_USER_ID));
+    receiver.matchExceptUserIds.push(new Types.ObjectId(loginUserId));
     await receiver.save();
 
     return newMatch;
   },
 
-  async cancelMatch({ matchId }: { matchId: Types.ObjectId }) {
+  async cancelMatch({
+    matchId,
+    loginUserId,
+  }: {
+    matchId: Types.ObjectId;
+    loginUserId: string;
+  }) {
     const match = await Match.findByIdAndDelete(matchId);
     if (!match) throw new Error("cannot cancel Match");
 
     // TODO: 트랜젝션 구현
     // 매치 취소(삭제) 후 각각의 제외 유저 목록에서 서로를 삭제
-    const sender = await User.findById(MOCK_USER_ID);
+    const sender = await User.findById(loginUserId);
     if (!sender) throw new Error("cannot cancel Match");
     const indexReceiver = sender.matchExceptUserIds.findIndex((e) => {
       return e.toString() === match.receiverId.toString();

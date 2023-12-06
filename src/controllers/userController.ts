@@ -20,32 +20,30 @@ const userController = {
   },
 
   async getUserRecommend(_: any, res: Response) {
-    const users = await userService.getUserRecommend();
+    const loginUserId = res.locals.userInfo._id;
+    const users = await userService.getUserRecommend(loginUserId);
     res.status(200).json(users);
   },
 
   async updateConditionExpect(req: Request, res: Response) {
     const conditionExpect = req.body;
-
-    await userService.updateConditionExpect(conditionExpect);
+    const loginUserId = res.locals.userInfo._id;
+    await userService.updateConditionExpect(conditionExpect, loginUserId);
 
     res.status(200).end();
   },
 
   async getUserMine(req: Request, res: Response) {
-    // const {userId} = req?.userId;
-    //jwt decoded info
-    console.log("jwt decoded info : ", res.locals.userInfo);
-    const user = await userService.getUserMain();
+    const loginUserId = res.locals.userInfo._id;
+    const user = await userService.getUserMain(loginUserId);
 
     res.status(200).json(user);
   },
 
   async updateMe(req: Request, res: Response) {
-    // const {userId} = req?.userId;
     const user = req.body;
-
-    await userService.UpdateMe(user);
+    const loginUserId = res.locals.userInfo._id;
+    await userService.UpdateMe(user, loginUserId);
 
     res.status(200).end();
   },
@@ -124,7 +122,7 @@ const userController = {
           code,
         },
       },
-      function (error:any, httpResponse:any, body:any) {
+      function (error: any, httpResponse: any, body: any) {
         const kakaoAccessToken = JSON.parse(body).access_token;
 
         const options = {
@@ -137,9 +135,12 @@ const userController = {
           },
         };
 
-        request.get(options, function (error:any, httpResponse:any, body:any) {
-          console.log("body : ", body);
-        });
+        request.get(
+          options,
+          function (error: any, httpResponse: any, body: any) {
+            console.log("body : ", body);
+          },
+        );
       },
     );
 

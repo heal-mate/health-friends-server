@@ -11,9 +11,9 @@ interface RequestHasBody<T> extends Request {
 // res.locals.userInfo에서 값 꺼내기
 const alertController = {
   async getAlerts(_: any, res: Response) {
-    const userID = res.locals.userInfo._id;
+    const loginUserId = res.locals.userInfo._id;
     const alerts = await alertService.getAlertsAll({
-      userId: new Types.ObjectId(userID),
+      loginUserId: new Types.ObjectId(loginUserId),
     });
     res.status(200).json(alerts);
   },
