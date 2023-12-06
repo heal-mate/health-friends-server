@@ -178,7 +178,6 @@ const userService = {
       tel,
       nickName,
       password,
-      profileImageSrc: "basicProfile",
       introduction: "소개를 입력해주세요.",
       condition: {
         benchPress: 0,
