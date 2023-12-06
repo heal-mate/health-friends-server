@@ -10,17 +10,16 @@ interface RequestHasBody<T> extends Request {
   body: T;
 }
 
-// TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
-// const MOCK_USER_ID = "65654d023948df4dfd0cf108";
-
 const matchController = {
   async getMatchesReceived(_: any, res: Response) {
-    const matchesReceived = await matchService.getMatchesReceived();
+    const loginUserId = res.locals.userInfo._id;
+    const matchesReceived = await matchService.getMatchesReceived(loginUserId);
     res.status(200).json(matchesReceived);
   },
 
   async getMatchesSent(_: any, res: Response) {
-    const matchesSent = await matchService.getMatchesSent();
+    const loginUserId = res.locals.userInfo._id;
+    const matchesSent = await matchService.getMatchesSent(loginUserId);
     res.status(200).json(matchesSent);
   },
 
@@ -28,16 +27,19 @@ const matchController = {
     req: RequestHasBody<{ userId?: Types.ObjectId }>,
     res: Response,
   ) {
-    const { userId } = req.body;
-    const user = res.locals.userInfo as User;
-    //이미 등록된 match가 있는지도 체크해야할 듯!
-    if (!userId) {
+    const loginUserId = res.locals.userInfo._id;
+    const { userId: receiverId } = req.body;
+    // TODO: 이미 등록된 match가 있는지도 체크해야할 듯!
+    if (!receiverId) {
       res.status(400).json({ message: "undefined userId" });
       // TODO: 에러 핸들링
       return;
     }
 
-    const newMatchInfo = await matchService.requestMatch({ userId });
+    const newMatchInfo = await matchService.requestMatch({
+      receiverId,
+      loginUserId,
+    });
     // 알람 등록(메이트 요청)
     await alertService.createAlert({
       matchId: newMatchInfo!._id,
@@ -46,15 +48,16 @@ const matchController = {
 
     // 웹 푸시 전송
     await userService.sendWebPushMessage({
-      registrationToken: user.registrationToken,
+      registrationToken: loginUserId.registrationToken,
       title: `[HELF] 매치 요청이 왔습니다.`,
-      body: `${user.nickName}님, 매치 요청이 왔습니다. 지금 바로 확인해보세요.`,
+      body: `${loginUserId.nickName}님, 매치 요청이 왔습니다. 지금 바로 확인해보세요.`,
     });
 
     res.status(201).end();
   },
 
-  async cancelMatch(req: Request<{ matchId?: Types.ObjectId }>, res: Response) {
+  async cancelMatch(req: Request<{ matchId: Types.ObjectId }>, res: Response) {
+    const loginUserId = res.locals.userInfo._id;
     const { matchId } = req.params;
     if (!matchId) {
       res.status(400).json({ message: "undefined matchId" });
@@ -62,7 +65,7 @@ const matchController = {
       return;
     }
 
-    await matchService.cancelMatch({ matchId });
+    await matchService.cancelMatch({ matchId, loginUserId });
 
     res.status(200).end();
   },

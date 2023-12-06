@@ -53,6 +53,8 @@ export const UserSchema = new Schema<User>(
     profileImageSrc: {
       type: String,
       required: true,
+      default:
+        "https://res.cloudinary.com/djq2j6rkq/image/upload/t_test/v1701853513/dcihbvpm3nvffbz2jzds.png",
     },
     introduction: {
       type: String,

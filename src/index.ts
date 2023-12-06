@@ -2,8 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import "dotenv/config";
+import bodyParser from "body-parser";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import cookieParser from "cookie-parser";
 
 // web push를 위한 Firebase Cloud Message 초기화 시작
 import admin from "firebase-admin";
@@ -33,13 +35,15 @@ mongoose.connection.on("connected", () => {
 });
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   cors({
     origin: [FRONTEND_URL],
+    credentials: true,
   }),
 );
-
+app.use(bodyParser.json());
 app.use("/api", router);
 
 // 오류처리 미들웨어
