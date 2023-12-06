@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import userService from "../services/userService.js";
 import { Types } from "mongoose";
-import request from "request";
-import fetch from "node-fetch";
-import { User } from "../models/schemas/user.js";
+
+interface RequestHasBody<T> extends Request {
+  body: T;
+}
 
 const userController = {
   async getUser(req: Request<{ id?: Types.ObjectId }>, res: Response) {
@@ -107,44 +108,20 @@ const userController = {
     }
   },
 
-  //kakao api users login
-  async kakaoLogin(req: Request, res: Response) {
-    const { code } = req.params;
-
-    //auth token 받기
-    request.post(
-      "https://kauth.kakao.com/oauth/token",
-      {
-        form: {
-          grant_type: "authorization_code",
-          client_id: process.env.REST_API_KEY,
-          redirect_uri: process.env.Redirect_URI,
-          code,
-        },
-      },
-      function (error: any, httpResponse: any, body: any) {
-        const kakaoAccessToken = JSON.parse(body).access_token;
-
-        const options = {
-          // uri: "https://kapi.kakao.com/v2/user/me",
-          uri: "https://kapi.kakao.com/v1/user/access_token_info", //token verfy
-          headers: {
-            // Authorization: "Bearer " + kakaoAccessToken,
-            Authorization: "Bearer " + "hi",
-            "Content-type": "appication/x-www-form-urlencoded:charset=utf-8",
-          },
-        };
-
-        request.get(
-          options,
-          function (error: any, httpResponse: any, body: any) {
-            console.log("body : ", body);
-          },
-        );
-      },
-    );
-
-    //받은 auth token으로 유저 정보 가져오기
+  async registerWebPushToken(
+    req: RequestHasBody<{ token: string }>,
+    res: Response,
+  ) {
+    try {
+      const { token } = req.body;
+      const user = res.locals.userInfo;
+      await userService.registerWebPushToken({ userId: user._id, token });
+      res.status(201).end();
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).json(err.message);
+      }
+    }
   },
 };
 

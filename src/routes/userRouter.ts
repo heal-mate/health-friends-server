@@ -24,4 +24,7 @@ router.post("/login", userController.loginUser);
 // 카카오로그인
 router.get("/kakaoLogin/:code", userController.kakaoLogin);
 
+// 웹 푸시 토큰 등록
+router.post("/webpush-token", authJWT, userController.registerWebPushToken);
+
 export default router;
