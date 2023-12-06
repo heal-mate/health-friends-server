@@ -5,6 +5,7 @@ import "dotenv/config";
 import bodyParser from "body-parser";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import cookieParser from "cookie-parser";
 
 const { PORT, MONGODB_URL, FRONTEND_URL } = process.env;
 
@@ -22,10 +23,12 @@ mongoose.connection.on("connected", () => {
 });
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   cors({
     origin: [FRONTEND_URL],
+    credentials: true,
   }),
 );
 app.use(bodyParser.json());

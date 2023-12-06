@@ -4,19 +4,19 @@ import { authJWT } from "../middleware/authJWT.js";
 
 const router = express.Router();
 
-router.get("/recommend", userController.getUserRecommend);
-router.get("/detail/:id", userController.getUser);
+router.get("/recommend", authJWT, userController.getUserRecommend);
+router.get("/detail/:id", authJWT, userController.getUser);
 
 // 필터 조건 변경
-router.patch("/conditionExpect", userController.updateConditionExpect);
+router.patch("/conditionExpect", authJWT, userController.updateConditionExpect);
 // 자기 정보 받아오기.
 router.get("/mine", authJWT, userController.getUserMine);
 // 자기 정보 업데이트.
-router.patch("/mine", userController.updateMe);
+router.patch("/mine", authJWT, userController.updateMe);
 // 인증메일 받기
-router.post("/getAuthMail", userController.getAuthNo);
+router.post("/getAuthMail", userController.getAuthCode);
 // 인증메일 확인
-router.post("/CheckAuthMail", userController.checkAuthNo);
+router.post("/CheckAuthMail", userController.checkAuthCode);
 // 회원가입
 router.post("/register", userController.registerUser);
 // 로그인

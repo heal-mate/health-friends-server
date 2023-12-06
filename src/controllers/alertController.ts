@@ -8,13 +8,12 @@ interface RequestHasBody<T> extends Request {
 }
 
 // TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
-// const MOCK_USER_ID = "65654d023948df4dfd0cf108"; // 로니콜먼
-const MOCK_USER_ID = "6564aabc5235915edc6b3510"; // 제이팍
-
+// res.locals.userInfo에서 값 꺼내기
 const alertController = {
   async getAlerts(_: any, res: Response) {
+    const userID = res.locals.userInfo._id;
     const alerts = await alertService.getAlertsAll({
-      userId: new Types.ObjectId(MOCK_USER_ID),
+      userId: new Types.ObjectId(userID),
     });
     res.status(200).json(alerts);
   },
