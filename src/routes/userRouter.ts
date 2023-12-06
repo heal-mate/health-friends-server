@@ -21,8 +21,6 @@ router.post("/CheckAuthMail", userController.checkAuthCode);
 router.post("/register", userController.registerUser);
 // 로그인
 router.post("/login", userController.loginUser);
-// 카카오로그인
-router.get("/kakaoLogin/:code", userController.kakaoLogin);
 
 // 웹 푸시 토큰 등록
 router.post("/webpush-token", authJWT, userController.registerWebPushToken);
