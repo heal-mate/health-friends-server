@@ -51,7 +51,7 @@ const matchService = {
     matchId: Types.ObjectId;
     loginUserId: string;
   }) {
-    const match = await Match.findByIdAndDelete(matchId);
+    const match = await Match.findByIdAndDelete(matchId).lean();
     if (!match) throw new Error("cannot cancel Match");
 
     // TODO: 트랜젝션 구현
