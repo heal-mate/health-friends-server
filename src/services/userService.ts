@@ -7,9 +7,6 @@ import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import { createAcessToken, createRefreshToken } from "../utils/jwt.js";
 
-// TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
-const MOCK_USER_ID = "6564aabc5235915edc6b3510";
-
 const userService = {
   async getUser({ id }: { id: Types.ObjectId }) {
     const users = await User.findById(id).exec();
@@ -21,9 +18,9 @@ const userService = {
    * 나의 conditionExpect와 유저들의 condition을 비교하는 AND 쿼리로 얻은 usersRecommended를
    * 나의 condition과 유저들의 conditionExpect를 비교해 걸러주는 filter 메서드를 사용해 추천 유저 획득
    * */
-  async getUserRecommend() {
+  async getUserRecommend(loginUserId: string) {
     // recommend를 요청한 user의 정보
-    const userRequested = await User.findById(MOCK_USER_ID).lean();
+    const userRequested = await User.findById(loginUserId).lean();
     if (!userRequested) return;
 
     const {
@@ -36,6 +33,7 @@ const userService = {
     const queries = makeRecommendUserQuery({
       myConditionExpect,
       matchExceptUserIds,
+      loginUserId,
     });
 
     const usersRecommended = await User.find({ $and: queries }).lean();
@@ -49,21 +47,24 @@ const userService = {
     );
   },
 
-  async getUserMain() {
-    const user = await User.findOne({ _id: MOCK_USER_ID });
+  async getUserMain(loginUserId: string) {
+    const user = await User.findOne({ _id: loginUserId });
     return user;
   },
 
-  async UpdateMe(data: UserType) {
+  async UpdateMe(data: UserType, loginUserId: string) {
     try {
-      await User.updateOne({ _id: MOCK_USER_ID }, data);
+      await User.updateOne({ _id: loginUserId }, data);
     } catch (error) {
       throw new Error("Update failed.");
     }
   },
 
-  async updateConditionExpect(conditionExpect: Condition<"RANGE">) {
-    await User.updateOne({ _id: MOCK_USER_ID }, { conditionExpect });
+  async updateConditionExpect(
+    conditionExpect: Condition<"RANGE">,
+    loginUserId: string,
+  ) {
+    await User.updateOne({ _id: loginUserId }, { conditionExpect });
   },
 
   //이메일 전송하기
@@ -79,7 +80,7 @@ const userService = {
       if (new Date() < authInfo.expiredTime) {
         isOver = false;
         throw new Error(
-          `이미 인증번호가 발송되었습니다. ${MAX_EXPIRY_MINUTE}뒤에 다시 요청해주세요.`,
+          `이미 인증번호가 발송되었습니다. ${MAX_EXPIRY_MINUTE}분 뒤에 다시 요청해주세요.`,
         );
       } else {
         isOver = true;
@@ -89,14 +90,14 @@ const userService = {
     const transport = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "dada4202@gmail.com",
-        pass: process.env.Google_APP_KEY,
+        user: process.env.SENDER_EMAIL,
+        pass: process.env.GOOGLE_APP_KEY,
       },
     });
 
     const authCode = Math.random().toString(36).slice(2);
     const message = {
-      from: "dada4202@gmail.com",
+      from: process.env.SENDER_EMAIL,
       to: email,
       subject: "헬스프렌즈 인증번호",
       text: authCode,
@@ -177,7 +178,6 @@ const userService = {
       tel,
       nickName,
       password,
-      profileImageSrc: "basicProfile",
       introduction: "소개를 입력해주세요.",
       condition: {
         benchPress: 0,
@@ -260,9 +260,11 @@ export default userService;
 function makeRecommendUserQuery({
   myConditionExpect,
   matchExceptUserIds,
+  loginUserId,
 }: {
   myConditionExpect: Condition<"RANGE">;
   matchExceptUserIds: Types.ObjectId[];
+  loginUserId: string;
 }) {
   // 나의 condtionExpect와, 다른 유저들의 condition를 비교하기 위한 쿼리 타입
   type Query = {
@@ -288,7 +290,7 @@ function makeRecommendUserQuery({
   // 나의 condtionExpect와, 다른 유저들의 condition을 비교하기 위한 AND 쿼리 배열
   const queries = [
     // 자기 자신을 제외하는 쿼리
-    { _id: { $ne: new Types.ObjectId(MOCK_USER_ID) } },
+    { _id: { $ne: new Types.ObjectId(loginUserId) } },
     // 제외할 유저 목록(매칭중, 블랙리스트 등)을 제외하는 쿼리
     { _id: { $nin: matchExceptUserIds } },
   ] as Query[];

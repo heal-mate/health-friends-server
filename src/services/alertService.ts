@@ -4,7 +4,7 @@ import { AlertSchema } from "../models/schemas/alert.js";
 import { MatchStatus, matchStatusDict } from "../config/constants.js";
 
 const alertService = {
-  async getAlertsAll({ userId }: { userId: Types.ObjectId }) {
+  async getAlertsAll({ loginUserId }: { loginUserId: Types.ObjectId }) {
     const alerts = await Alert.aggregate([
       {
         $match: {
@@ -23,13 +23,16 @@ const alertService = {
         $match: {
           $or: [
             {
-              "matchInfo.senderId": userId,
+              "matchInfo.senderId": loginUserId,
               $or: [
                 { status: matchStatusDict.accepted },
                 { status: matchStatusDict.rejected },
               ],
             },
-            { "matchInfo.receiverId": userId, status: matchStatusDict.waiting },
+            {
+              "matchInfo.receiverId": loginUserId,
+              status: matchStatusDict.waiting,
+            },
           ],
         },
       },

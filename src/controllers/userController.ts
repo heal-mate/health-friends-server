@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import userService from "../services/userService.js";
 import { Types } from "mongoose";
+import request from "request";
+import fetch from "node-fetch";
 import { User } from "../models/schemas/user.js";
 
 const userController = {
@@ -18,32 +20,30 @@ const userController = {
   },
 
   async getUserRecommend(_: any, res: Response) {
-    const users = await userService.getUserRecommend();
+    const loginUserId = res.locals.userInfo._id;
+    const users = await userService.getUserRecommend(loginUserId);
     res.status(200).json(users);
   },
 
   async updateConditionExpect(req: Request, res: Response) {
     const conditionExpect = req.body;
-
-    await userService.updateConditionExpect(conditionExpect);
+    const loginUserId = res.locals.userInfo._id;
+    await userService.updateConditionExpect(conditionExpect, loginUserId);
 
     res.status(200).end();
   },
 
   async getUserMine(req: Request, res: Response) {
-    // const {userId} = req?.userId;
-    //jwt decoded info
-    console.log("jwt decoded info : ", res.locals.userInfo);
-    const user = await userService.getUserMain();
+    const loginUserId = res.locals.userInfo._id;
+    const user = await userService.getUserMain(loginUserId);
 
     res.status(200).json(user);
   },
 
   async updateMe(req: Request, res: Response) {
-    // const {userId} = req?.userId;
     const user = req.body;
-
-    await userService.UpdateMe(user);
+    const loginUserId = res.locals.userInfo._id;
+    await userService.UpdateMe(user, loginUserId);
 
     res.status(200).end();
   },
@@ -105,6 +105,46 @@ const userController = {
         res.status(400).json(err!.message);
       }
     }
+  },
+
+  //kakao api users login
+  async kakaoLogin(req: Request, res: Response) {
+    const { code } = req.params;
+
+    //auth token 받기
+    request.post(
+      "https://kauth.kakao.com/oauth/token",
+      {
+        form: {
+          grant_type: "authorization_code",
+          client_id: process.env.REST_API_KEY,
+          redirect_uri: process.env.Redirect_URI,
+          code,
+        },
+      },
+      function (error: any, httpResponse: any, body: any) {
+        const kakaoAccessToken = JSON.parse(body).access_token;
+
+        const options = {
+          // uri: "https://kapi.kakao.com/v2/user/me",
+          uri: "https://kapi.kakao.com/v1/user/access_token_info", //token verfy
+          headers: {
+            // Authorization: "Bearer " + kakaoAccessToken,
+            Authorization: "Bearer " + "hi",
+            "Content-type": "appication/x-www-form-urlencoded:charset=utf-8",
+          },
+        };
+
+        request.get(
+          options,
+          function (error: any, httpResponse: any, body: any) {
+            console.log("body : ", body);
+          },
+        );
+      },
+    );
+
+    //받은 auth token으로 유저 정보 가져오기
   },
 };
 
