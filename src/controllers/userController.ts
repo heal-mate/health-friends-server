@@ -122,19 +122,22 @@ const userController = {
         },
       },
       function (error, httpResponse, body) {
+        console.log("token : ", JSON.parse(body));
         const kakaoAccessToken = JSON.parse(body).access_token;
 
         const options = {
-          uri: "https://kapi.kakao.com/v2/user/me",
+          // uri: "https://kapi.kakao.com/v2/user/me",
+          uri: "https://kapi.kakao.com/v1/user/access_token_info", //token verfy
           headers: {
-            Authorization: "Bearer " + kakaoAccessToken,
+            // Authorization: "Bearer " + kakaoAccessToken,
+            Authorization: "Bearer " + "hi",
             "Content-type": "appication/x-www-form-urlencoded:charset=utf-8",
           },
         };
 
         request.get(options, function (error, httpResponse, body) {
+          // console.log("httpResponse : ", httpResponse);
           console.log("body : ", body);
-          console.log("error : ", error);
         });
       },
     );
