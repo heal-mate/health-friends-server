@@ -18,6 +18,7 @@ export type User = {
   matchIds: Array<Types.ObjectId>;
   matchExceptUserIds: Array<Types.ObjectId>;
   refreshToken: string;
+  registrationToken: string;
   deletedAt: Date;
 };
 
@@ -125,6 +126,7 @@ export const UserSchema = new Schema<User>(
       required: false,
     },
     refreshToken: { type: String, required: false },
+    registrationToken: { type: String, required: false },
     matchIds: [
       {
         type: ObjectId,

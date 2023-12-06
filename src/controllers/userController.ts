@@ -3,6 +3,10 @@ import userService from "../services/userService.js";
 import { Types } from "mongoose";
 import { User } from "../models/schemas/user.js";
 
+interface RequestHasBody<T> extends Request {
+  body: T;
+}
+
 const userController = {
   async getUser(req: Request<{ id?: Types.ObjectId }>, res: Response) {
     const { id } = req.params;
@@ -103,6 +107,22 @@ const userController = {
     } catch (err: unknown) {
       if (err instanceof Error) {
         res.status(400).json(err!.message);
+      }
+    }
+  },
+
+  async registerWebPushToken(
+    req: RequestHasBody<{ token: string }>,
+    res: Response,
+  ) {
+    try {
+      const { token } = req.body;
+      const user = res.locals.userInfo;
+      await userService.registerWebPushToken({ userId: user._id, token });
+      res.status(201).end();
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).json(err.message);
       }
     }
   },

@@ -22,4 +22,7 @@ router.post("/register", userController.registerUser);
 // 로그인
 router.post("/login", userController.loginUser);
 
+// 웹 푸시 토큰 등록
+router.post("/webpush-token", authJWT, userController.registerWebPushToken);
+
 export default router;
