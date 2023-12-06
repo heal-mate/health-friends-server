@@ -6,6 +6,7 @@ import { Condition } from "../models/schemas/user.js";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import { createAcessToken, createRefreshToken } from "../utils/jwt.js";
+import { getMessaging } from "firebase-admin/messaging";
 
 const userService = {
   async getUser({ id }: { id: Types.ObjectId }) {
@@ -251,6 +252,40 @@ const userService = {
         refreshToken: refreshToken,
       },
     };
+  },
+
+  async registerWebPushToken({
+    userId,
+    token,
+  }: {
+    userId: string;
+    token: string;
+  }) {
+    return User.findByIdAndUpdate(userId, { registrationToken: token });
+  },
+
+  async sendWebPushMessage(props: {
+    registrationToken: string;
+    title: string;
+    body: string;
+  }) {
+    const { registrationToken: token, title, body } = props;
+
+    return getMessaging()
+      .send({
+        notification: {
+          title,
+          body,
+        },
+        token,
+      })
+      .then((response) => {
+        // Response is a message ID string.
+        console.log("Successfully sent message:", response);
+      })
+      .catch((error) => {
+        console.log("Error sending message:", error);
+      });
   },
 };
 

@@ -3,6 +3,8 @@ import { Types } from "mongoose";
 import matchService from "../services/matchService.js";
 import alertService from "../services/alertService.js";
 import { matchStatusDict } from "../config/constants.js";
+import userService from "../services/userService.js";
+import { User } from "../models/schemas/user.js";
 
 interface RequestHasBody<T> extends Request {
   body: T;
@@ -44,6 +46,13 @@ const matchController = {
       status: matchStatusDict.waiting,
     });
 
+    // 웹 푸시 전송
+    await userService.sendWebPushMessage({
+      registrationToken: loginUserId.registrationToken,
+      title: `[HELF] 매치 요청이 왔습니다.`,
+      body: `${loginUserId.nickName}님, 매치 요청이 왔습니다. 지금 바로 확인해보세요.`,
+    });
+
     res.status(201).end();
   },
 
@@ -61,7 +70,8 @@ const matchController = {
     res.status(200).end();
   },
 
-  async acceptMatch(req: Request<{ matchId: Types.ObjectId }>, res: Response) {
+  async acceptMatch(req: Request<{ matchId?: Types.ObjectId }>, res: Response) {
+    const user = res.locals.userInfo as User;
     const { matchId } = req.params;
     if (!matchId) {
       res.status(400).json({ message: "undefined matchId" });
@@ -80,10 +90,18 @@ const matchController = {
       status: matchStatusDict.accepted,
     });
 
+    // 웹 푸시 전송
+    await userService.sendWebPushMessage({
+      registrationToken: user.registrationToken,
+      title: `[HELF] 매치가 수락되었습니다.`,
+      body: `${user.nickName}님, 매치가 성사되었습니다. 지금 바로 확인해보세요.`,
+    });
+
     res.status(200).end();
   },
 
   async rejectMatch(req: Request<{ matchId?: Types.ObjectId }>, res: Response) {
+    const user = res.locals.userInfo as User;
     const { matchId } = req.params;
     if (!matchId) {
       res.status(400).json({ message: "undefined matchId" });
@@ -101,6 +119,14 @@ const matchController = {
       matchId: newMatchInfo._id,
       status: matchStatusDict.rejected,
     });
+
+    // 웹 푸시 전송
+    await userService.sendWebPushMessage({
+      registrationToken: user.registrationToken,
+      title: `[HELF] 매치가 거절되었습니다.`,
+      body: `${user.nickName}님, 매치가 거절되었습니다. 지금 바로 확인해보세요.`,
+    });
+
     res.status(200).end();
   },
 };

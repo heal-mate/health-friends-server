@@ -7,6 +7,18 @@ import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 import cookieParser from "cookie-parser";
 
+// web push를 위한 Firebase Cloud Message 초기화 시작
+import admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import serviceAccount from "../service-account-file.json" assert { type: "json" };
+// The requested module 'firebase-admin' is a CommonJS module, which may not support all module.exports as named exports.
+// CommonJS modules can always be imported via the default export
+const { credential } = admin;
+initializeApp({
+  credential: credential.cert(serviceAccount),
+});
+// web push를 위한 Firebase Cloud Message 초기화 끝
+
 const { PORT, MONGODB_URL, FRONTEND_URL } = process.env;
 
 const app = express();
