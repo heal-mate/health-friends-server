@@ -87,6 +87,30 @@ const authController = {
       }
     }
   },
+
+  async withdrawUser(req: Request, res: Response) {
+    try {
+      const loginUserId = res.locals.userInfo._id;
+      await authService.withdrawUser({ userId: loginUserId });
+      res.cookie("accessToken", "", {
+        expires: new Date(0),
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      res.cookie("refreshToken", "", {
+        expires: new Date(0),
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      res.status(200).end();
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(400).json(err.message);
+      }
+    }
+  },
 };
 
 export default authController;

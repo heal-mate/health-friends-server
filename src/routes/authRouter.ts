@@ -1,5 +1,6 @@
 import express from "express";
 import authController from "../controllers/authController.js";
+import { authJWT } from "../middleware/authJWT.js";
 
 const router = express.Router();
 
@@ -13,5 +14,7 @@ router.post("/register", authController.registerUser);
 router.post("/login", authController.loginUser);
 
 router.get("/logout", authController.logoutUser);
+
+router.patch("/withdraw", authJWT, authController.withdrawUser);
 
 export default router;

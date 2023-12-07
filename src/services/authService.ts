@@ -127,6 +127,7 @@ const authService = {
         location,
       },
       conditionExpect: {},
+      deletedAt: null,
     });
 
     //비밀번호 암호화 하기
@@ -190,6 +191,11 @@ const authService = {
         refreshToken: refreshToken,
       },
     };
+  },
+
+  async withdrawUser({ userId }: { userId: string }) {
+    console.log(userId);
+    return User.findByIdAndUpdate(userId, { deletedAt: new Date() });
   },
 };
 
