@@ -3,9 +3,9 @@ import authService from "../services/authService.js";
 
 const authController = {
   // 이메일 인증번호 보내기
-  async getAuthCode(req: Request, res: Response) {
+  async authCode(req: Request, res: Response) {
     try {
-      await authService.SendEmail(req.body.email);
+      await authService.sendEmail(req.body.email);
       res.status(200).end();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -18,7 +18,7 @@ const authController = {
   async checkAuthCode(req: Request, res: Response) {
     const { email, authCode } = req.body.data;
     try {
-      await authService.CheckAuthMail({ email, authCode });
+      await authService.checkAuthMail({ email, authCode });
       res.status(200).end();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -30,7 +30,7 @@ const authController = {
   //회원가입하기
   async registerUser(req: Request, res: Response) {
     try {
-      const newUser = await authService.SignUp(req.body);
+      const newUser = await authService.signUp(req.body);
       res.status(200).json(newUser);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -42,7 +42,7 @@ const authController = {
   //로그인
   async loginUser(req: Request, res: Response) {
     try {
-      const { user, token } = await authService.SignIn(req.body.data);
+      const { user, token } = await authService.signIn(req.body.data);
 
       if (!user) throw new Error("undefined user");
 

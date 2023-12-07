@@ -1,14 +1,13 @@
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
-import { Auth } from "../models";
-import { MAX_EXPIRY_MINUTE } from "../config/constants";
+import { MAX_EXPIRY_MINUTE } from "../config/constants.js";
 import { createAcessToken, createRefreshToken } from "../utils/jwt.js";
-import { User } from "../models/index.js";
+import { Auth, User } from "../models/index.js";
 import { User as UserType } from "../models/schemas/user.js";
 
 const authService = {
   //이메일 전송하기
-  async SendEmail(email: string) {
+  async sendEmail(email: string) {
     if (email === "") {
       throw new Error(`이메일을 입력해주세요.`);
     }
@@ -72,7 +71,7 @@ const authService = {
   },
 
   // 인증번호 확인
-  async CheckAuthMail({
+  async checkAuthMail({
     email,
     authCode,
   }: {
@@ -95,7 +94,7 @@ const authService = {
   },
 
   //유저 회원가입
-  async SignUp(userDTO: UserType & { location: string; gender: string }) {
+  async signUp(userDTO: UserType & { location: string; gender: string }) {
     const { tel, nickName, email, gender, password, location } = userDTO;
 
     //이미 가입된 이메일이 있는지 찾아보기
@@ -149,7 +148,7 @@ const authService = {
   },
 
   //로그인
-  async SignIn(loginInfo: { email: string; password: string }) {
+  async signIn(loginInfo: { email: string; password: string }) {
     const { email, password } = loginInfo;
 
     //DB에서 유저정보 찾기
