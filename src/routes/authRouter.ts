@@ -12,4 +12,6 @@ router.post("/register", authController.registerUser);
 // 로그인
 router.post("/login", authController.loginUser);
 
+router.get("/logout", authController.logoutUser);
+
 export default router;
