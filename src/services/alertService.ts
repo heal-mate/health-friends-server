@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { Alert, Match, User } from "../models/index.js";
+import { Alert, User } from "../models/index.js";
 import { AlertSchema } from "../models/schemas/alert.js";
 import { MatchStatus, matchStatusDict } from "../config/constants.js";
 

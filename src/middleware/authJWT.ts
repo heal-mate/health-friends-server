@@ -71,7 +71,11 @@ const authJWT = asyncHandler(async (req, res, next) => {
   //refreshToken 검증이 모두 통과된다면
   if (refreshDecodedUser && result && user) {
     const newAccessToken = createAcessToken(user);
-    res.cookie("accessToken", newAccessToken);
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
     res.locals.userInfo = user;
     return next();
   }

@@ -13,14 +13,6 @@ router.patch("/conditionExpect", authJWT, userController.updateConditionExpect);
 router.get("/mine", authJWT, userController.getUserMine);
 // 자기 정보 업데이트.
 router.patch("/mine", authJWT, userController.updateMe);
-// 인증메일 받기
-router.post("/getAuthMail", userController.getAuthCode);
-// 인증메일 확인
-router.post("/CheckAuthMail", userController.checkAuthCode);
-// 회원가입
-router.post("/register", userController.registerUser);
-// 로그인
-router.post("/login", userController.loginUser);
 
 // 웹 푸시 토큰 등록
 router.post("/webpush-token", authJWT, userController.registerWebPushToken);
