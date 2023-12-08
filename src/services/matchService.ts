@@ -15,7 +15,7 @@ const matchService = {
 
   async requestMatch(props: {
     receiverId: Types.ObjectId;
-    loginUserId: string;
+    loginUserId: Types.ObjectId;
   }) {
     const { receiverId, loginUserId } = props;
 
@@ -50,7 +50,7 @@ const matchService = {
     loginUserId,
   }: {
     matchId: Types.ObjectId;
-    loginUserId: string;
+    loginUserId: Types.ObjectId;
   }) {
     const match = await Match.findByIdAndDelete(matchId).lean();
     if (!match) throw new HttpException(400, "cannot cancel Match");

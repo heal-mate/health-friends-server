@@ -26,7 +26,8 @@ const matchController = {
 
   requestMatch: asyncHandler(
     async (req: RequestHasBody<{ userId?: Types.ObjectId }>, res: Response) => {
-      const loginUserId = res.locals.userInfo._id;
+      const loginUser = res.locals.userInfo as User;
+      const loginUserId = loginUser._id;
       const { userId: receiverId } = req.body;
       // TODO: 이미 등록된 match가 있는지도 체크해야할 듯!
       if (!receiverId) {
@@ -47,7 +48,7 @@ const matchController = {
       await userService.sendWebPushMessage({
         userId: receiverId,
         title: `[HELF] 매치 요청이 왔습니다.`,
-        body: `${loginUserId.nickName}님, 매치 요청이 왔습니다. 지금 바로 확인해보세요.`,
+        body: `${loginUser.nickName}님, 매치 요청이 왔습니다. 지금 바로 확인해보세요.`,
       });
 
       res.status(201).end();
