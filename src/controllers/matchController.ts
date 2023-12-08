@@ -39,13 +39,13 @@ const matchController = {
       });
       // 알람 등록(메이트 요청)
       await alertService.createAlert({
-        matchId: newMatchInfo!._id,
+        matchId: newMatchInfo._id,
         status: matchStatusDict.waiting,
       });
 
       // 웹 푸시 전송
       await userService.sendWebPushMessage({
-        registrationToken: loginUserId.registrationToken,
+        userId: receiverId,
         title: `[HELF] 매치 요청이 왔습니다.`,
         body: `${loginUserId.nickName}님, 매치 요청이 왔습니다. 지금 바로 확인해보세요.`,
       });
@@ -91,7 +91,7 @@ const matchController = {
 
       // 웹 푸시 전송
       await userService.sendWebPushMessage({
-        registrationToken: user.registrationToken,
+        userId: newMatchInfo.senderId,
         title: `[HELF] 매치가 수락되었습니다.`,
         body: `${user.nickName}님, 매치가 성사되었습니다. 지금 바로 확인해보세요.`,
       });
@@ -123,7 +123,7 @@ const matchController = {
 
       // 웹 푸시 전송
       await userService.sendWebPushMessage({
-        registrationToken: user.registrationToken,
+        userId: newMatchInfo.senderId,
         title: `[HELF] 매치가 거절되었습니다.`,
         body: `${user.nickName}님, 매치가 거절되었습니다. 지금 바로 확인해보세요.`,
       });

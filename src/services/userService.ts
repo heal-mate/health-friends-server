@@ -80,11 +80,15 @@ const userService = {
   },
 
   async sendWebPushMessage(props: {
-    registrationToken: string;
+    userId: Types.ObjectId;
     title: string;
     body: string;
   }) {
-    const { registrationToken: token, title, body } = props;
+    const { userId, title, body } = props;
+    const receiver = await User.findById(userId).lean();
+    if (!receiver)
+      throw new HttpException(400, "수신자의 정보를 찾을 수 없습니다.");
+    const token = receiver.registrationToken;
 
     return getMessaging()
       .send({
