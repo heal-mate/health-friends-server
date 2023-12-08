@@ -8,8 +8,6 @@ interface RequestHasBody<T> extends Request {
   body: T;
 }
 
-// TODO: 쿠키에서 토큰 파싱해서 유저 아이디 가져오기
-// res.locals.userInfo에서 값 꺼내기
 const alertController = {
   getAlerts: asyncHandler(async (_: any, res: Response) => {
     const loginUserId = res.locals.userInfo._id;

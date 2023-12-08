@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { Match, User } from "../models/index.js";
 import { MatchSchema } from "../models/schemas/match.js";
 import { matchStatusDict } from "../config/constants.js";
+import { HttpException } from "../middleware/errorHandler.js";
 
 const matchService = {
   async getMatchesReceived(loginUserId: string) {
@@ -32,12 +33,12 @@ const matchService = {
     // TODO: 트랜젝션 구현
     // 매치 생성 후 각각의 유저에게 서로를 추천 목록에 반영하지 않도록 exceptUserIds 배열에 추가
     const sender = await User.findById(loginUserId);
-    if (!sender) throw new Error("cannot create Match");
+    if (!sender) throw new HttpException(400, "cannot create Match");
     sender.matchExceptUserIds.push(receiverId);
     await sender.save();
 
     const receiver = await User.findById(receiverId);
-    if (!receiver) throw new Error("cannot create Match");
+    if (!receiver) throw new HttpException(400, "cannot create Match");
     receiver.matchExceptUserIds.push(new Types.ObjectId(loginUserId));
     await receiver.save();
 
@@ -52,25 +53,26 @@ const matchService = {
     loginUserId: string;
   }) {
     const match = await Match.findByIdAndDelete(matchId).lean();
-    if (!match) throw new Error("cannot cancel Match");
+    if (!match) throw new HttpException(400, "cannot cancel Match");
 
     // TODO: 트랜젝션 구현
     // 매치 취소(삭제) 후 각각의 제외 유저 목록에서 서로를 삭제
     const sender = await User.findById(loginUserId);
-    if (!sender) throw new Error("cannot cancel Match");
+    if (!sender) throw new HttpException(400, "cannot cancel Match");
     const indexReceiver = sender.matchExceptUserIds.findIndex((e) => {
       return e.toString() === match.receiverId.toString();
     });
-    if (indexReceiver === -1) throw new Error("cannot cancel Match");
+    if (indexReceiver === -1)
+      throw new HttpException(400, "cannot cancel Match");
     sender.matchExceptUserIds.splice(indexReceiver, 1);
     await sender.save();
 
     const receiver = await User.findById(match.receiverId);
-    if (!receiver) throw new Error("cannot cancel Match");
+    if (!receiver) throw new HttpException(400, "cannot cancel Match");
     const indexSender = receiver.matchExceptUserIds.findIndex((e) => {
       return e.toString() === match.senderId.toString();
     });
-    if (indexSender === -1) throw new Error("cannot cancel Match");
+    if (indexSender === -1) throw new HttpException(400, "cannot cancel Match");
     receiver.matchExceptUserIds.splice(indexSender, 1);
     await sender.save();
   },

@@ -35,6 +35,10 @@ mongoose.connection.on("connected", () => {
   console.log("Successfully connected to MongoDB");
 });
 
+app.get("/health-check", (_, res) => {
+  res.status(200).end();
+});
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -52,5 +56,5 @@ app.use(logHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`listening at http://localhost:${PORT}`);
+  console.log(`PORT:${PORT}`);
 });
