@@ -7,7 +7,7 @@ import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import { createAcessToken, createRefreshToken } from "../utils/jwt.js";
 import { getMessaging } from "firebase-admin/messaging";
-
+import { HttpException } from "../middleware/errorHandler.js";
 const userService = {
   async getUser({ id }: { id: Types.ObjectId }) {
     const users = await User.findById(id).exec();
@@ -216,7 +216,7 @@ const userService = {
     //DB에서 유저정보 찾기
     const user = await User.findOne({ email, deletedAt: null });
     if (!user) {
-      throw new Error("가입된 유저가 아닙니다.");
+      throw new HttpException(400, "가입된 유저가 아닙니다.");
     }
 
     //입력한 비밀번호와 DB의 비밀번호 같은지 비교
@@ -224,7 +224,7 @@ const userService = {
 
     //만약 유저정보가 없거나 비밀번호가 동일하지 않다면
     if (!isValidPassword) {
-      throw new Error("이메일 또는 비밀번호가 일치하지 않습니다.");
+      throw new HttpException(400, "이메일 또는 비밀번호가 일치하지 않습니다.");
     }
 
     //로그인 성공 후
@@ -239,13 +239,6 @@ const userService = {
     return {
       user: {
         id: user?._id,
-        nickName: user?.nickName,
-        email: user?.email,
-        tel: user?.tel,
-        profileImageSrc: user?.profileImageSrc,
-        introduction: user?.introduction,
-        condition: user?.condition,
-        conditionExpect: user?.conditionExpect,
       },
       token: {
         accessToken: accessToken,

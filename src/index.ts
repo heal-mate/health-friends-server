@@ -5,6 +5,7 @@ import "dotenv/config";
 import bodyParser from "body-parser";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import logHandler from "./middleware/logHandler.js";
 import cookieParser from "cookie-parser";
 
 // web push를 위한 Firebase Cloud Message 초기화 시작
@@ -46,6 +47,7 @@ app.use(
 app.use(bodyParser.json());
 app.use("/api", router);
 
+app.use(logHandler);
 // 오류처리 미들웨어
 app.use(errorHandler);
 

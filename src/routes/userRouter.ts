@@ -21,6 +21,8 @@ router.post("/CheckAuthMail", userController.checkAuthCode);
 router.post("/register", userController.registerUser);
 // 로그인
 router.post("/login", userController.loginUser);
+// 유효한 유저인지 확인
+router.post("/validUser", authJWT, userController.isValidUser);
 
 // 웹 푸시 토큰 등록
 router.post("/webpush-token", authJWT, userController.registerWebPushToken);
