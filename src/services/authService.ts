@@ -4,12 +4,12 @@ import { MAX_EXPIRY_MINUTE } from "../config/constants.js";
 import { createAcessToken, createRefreshToken } from "../utils/jwt.js";
 import { Auth, User } from "../models/index.js";
 import { User as UserType } from "../models/schemas/user.js";
-
+import { HttpException } from "../middleware/errorHandler.js";
 const authService = {
   //이메일 전송하기
   async sendEmail(email: string) {
     if (email === "") {
-      throw new Error(`이메일을 입력해주세요.`);
+      throw new HttpException(400, `이메일을 입력해주세요.`);
     }
     let isOver = false;
 
@@ -18,7 +18,8 @@ const authService = {
     if (authInfo) {
       if (new Date() < authInfo.expiredTime) {
         isOver = false;
-        throw new Error(
+        throw new HttpException(
+          400,
           `이미 인증번호가 발송되었습니다. ${MAX_EXPIRY_MINUTE}분 뒤에 다시 요청해주세요.`,
         );
       } else {
@@ -50,7 +51,6 @@ const authService = {
       if (err) {
         return new Error(err.message);
       } else {
-        console.log("success to mail: ", info.envelope);
         if (isOver) {
           await Auth.findOneAndUpdate(
             { email },
@@ -81,15 +81,18 @@ const authService = {
     const savedAuthInfo = await Auth.findOne({ email });
 
     if (!savedAuthInfo) {
-      throw new Error(`인증메일 받기를 먼저 요청해주세요.`);
+      throw new HttpException(400, `인증메일 받기를 먼저 요청해주세요.`);
     }
 
     const isValidTime = new Date() < savedAuthInfo.expiredTime;
     if (!isValidTime) {
-      throw new Error("인증시간이 초과되었습니다. 다시 인증메일을 받아주세요.");
+      throw new HttpException(
+        400,
+        "인증시간이 초과되었습니다. 다시 인증메일을 받아주세요.",
+      );
     }
     if (savedAuthInfo.authCode !== authCode) {
-      throw new Error("인증번호가 일치하지 않습니다.");
+      throw new HttpException(400, "인증번호가 일치하지 않습니다.");
     }
   },
 
@@ -102,13 +105,16 @@ const authService = {
 
     //이미 DB에 이메일이 있다면
     if (isEmailSaved) {
-      throw new Error("이미 등록되어 있는 이메일입니다.");
+      throw new HttpException(400, "이미 등록되어 있는 이메일입니다.");
     }
 
     const pwRegex =
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!pwRegex.test(password)) {
-      throw new Error("8글자 이상, 영문, 숫자, 특수문자 사용해주세요.");
+      throw new HttpException(
+        400,
+        "8글자 이상, 영문, 숫자, 특수문자 사용해주세요.",
+      );
     }
 
     //DB에 이메일이 없다면
@@ -155,7 +161,7 @@ const authService = {
     //DB에서 유저정보 찾기
     const user = await User.findOne({ email, deletedAt: null });
     if (!user) {
-      throw new Error("가입된 유저가 아닙니다.");
+      throw new HttpException(400, "가입된 유저가 아닙니다.");
     }
 
     //입력한 비밀번호와 DB의 비밀번호 같은지 비교
@@ -163,7 +169,7 @@ const authService = {
 
     //만약 유저정보가 없거나 비밀번호가 동일하지 않다면
     if (!isValidPassword) {
-      throw new Error("이메일 또는 비밀번호가 일치하지 않습니다.");
+      throw new HttpException(400, "이메일 또는 비밀번호가 일치하지 않습니다.");
     }
 
     //로그인 성공 후
@@ -178,13 +184,6 @@ const authService = {
     return {
       user: {
         id: user?._id,
-        nickName: user?.nickName,
-        email: user?.email,
-        tel: user?.tel,
-        profileImageSrc: user?.profileImageSrc,
-        introduction: user?.introduction,
-        condition: user?.condition,
-        conditionExpect: user?.conditionExpect,
       },
       token: {
         accessToken: accessToken,

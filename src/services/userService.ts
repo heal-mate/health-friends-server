@@ -3,6 +3,7 @@ import { User } from "../models/index.js";
 import { User as UserType } from "../models/schemas/user.js";
 import { Condition } from "../models/schemas/user.js";
 import { getMessaging } from "firebase-admin/messaging";
+import { HttpException } from "../middleware/errorHandler.js";
 import {
   makeRecommendUserFilterCallback,
   makeRecommendUserQuery,
