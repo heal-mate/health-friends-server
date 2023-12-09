@@ -106,6 +106,16 @@ const authService = {
     }
   },
 
+  async removeAuthMail(email: string | undefined) {
+    if (!email) {
+      throw new HttpException(400, "인증정보를 삭제할 이메일이 없습니다.");
+    }
+    const isAuthSaved = await Auth.findOne({ email });
+    if (isAuthSaved) {
+      await Auth.findOneAndDelete({ email });
+    }
+  },
+
   //유저 회원가입
   async signUp(userDTO: UserType & { location: string; gender: string }) {
     const { tel, nickName, email, gender, password, location, kakaoID } =
@@ -133,10 +143,8 @@ const authService = {
       );
     }
 
-    console.log("dexletedEmail : ", deletedEmail);
     if (deletedEmail) {
       const hashedPassword = await getHashedPassword(password);
-      console.log("hashedPassword : ", hashedPassword);
       const newUser = await User.findByIdAndUpdate(
         deletedEmail._id,
         {
@@ -166,8 +174,7 @@ const authService = {
         },
         { new: true },
       );
-      console.log("new user : ", newUser);
-      return { id: newUser?._id };
+      return { email: newUser?.email };
     }
 
     //DB에 이메일이 없다면

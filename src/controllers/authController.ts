@@ -19,6 +19,9 @@ const authController = {
   //회원가입하기
   registerUser: asyncHandler(async (req: Request, res: Response) => {
     const newUser = await authService.signUp(req.body);
+    if (newUser) {
+      await authService.removeAuthMail(newUser.email);
+    }
     res.status(200).json(newUser);
   }),
 
