@@ -62,6 +62,13 @@ const authController = {
     res.status(200).end();
   }),
 
+  // 비밀번호 변경하기
+  updatePassword: asyncHandler(async (req: Request, res: Response) => {
+    const { _id, password } = req.body;
+    await authService.updatePassword({ _id, password });
+    res.status(200).end();
+  }),
+
   checkUserToken: asyncHandler(async (req: Request, res: Response) => {
     const loginUserId = res.locals.userInfo._id;
 

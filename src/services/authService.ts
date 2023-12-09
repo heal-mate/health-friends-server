@@ -258,6 +258,17 @@ const authService = {
     };
   },
 
+  async updatePassword({ _id, password }: { _id: string; password: string }) {
+    const user = await User.findById(_id);
+
+    if (!user) {
+      throw new HttpException(400, "해당 유저가 존재하지 않습니다.");
+    }
+
+    const hashedPassword = await getHashedPassword(password);
+    return await User.findByIdAndUpdate(_id, { password: hashedPassword });
+  },
+
   async withdrawUser({ userId }: { userId: string }) {
     console.log(userId);
     return User.findByIdAndUpdate(userId, { deletedAt: new Date() });
