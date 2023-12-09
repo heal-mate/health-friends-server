@@ -16,5 +16,7 @@ router.post("/login", authController.loginUser);
 router.get("/logout", authController.logoutUser);
 
 router.patch("/withdraw", authJWT, authController.withdrawUser);
+// 유저 검증(private-route)
+router.get("/is-valid-user", authJWT, authController.checkUserToken);
 
 export default router;

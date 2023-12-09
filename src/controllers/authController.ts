@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import authService from "../services/authService.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { HttpException } from "../middleware/errorHandler.js";
 const authController = {
   // 이메일 인증번호 보내기
   authCode: asyncHandler(async (req: Request, res: Response) => {
@@ -56,6 +57,15 @@ const authController = {
     });
 
     res.status(200).end();
+  }),
+
+  checkUserToken: asyncHandler(async (req: Request, res: Response) => {
+    const loginUserId = res.locals.userInfo._id;
+
+    if (!loginUserId) {
+      throw new HttpException(401, "유저 정보가 없습니다");
+    }
+    res.json(200).end();
   }),
 
   withdrawUser: asyncHandler(async (req: Request, res: Response) => {
