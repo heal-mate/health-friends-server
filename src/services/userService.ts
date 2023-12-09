@@ -53,6 +53,7 @@ const userService = {
           introduction: user.introduction,
           nickName: user.nickName,
           profileImageSrc: user.profileImageSrc,
+          kakaoID: user.kakaoID,
         }))
         .slice(0, 5)
     );

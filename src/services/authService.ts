@@ -106,7 +106,8 @@ const authService = {
 
   //유저 회원가입
   async signUp(userDTO: UserType & { location: string; gender: string }) {
-    const { tel, nickName, email, gender, password, location } = userDTO;
+    const { tel, nickName, email, gender, password, location, kakaoID } =
+      userDTO;
 
     //이미 가입된 이메일이 있는지 찾아보기
     const isEmailSaved = await User.findOne({ email, deletedAt: null });
@@ -139,6 +140,7 @@ const authService = {
           nickName,
           password,
           introduction: "소개를 입력해주세요.",
+          kakaoID,
           condition: {
             benchPress: 0,
             squat: 0,
@@ -147,7 +149,14 @@ const authService = {
             gender,
             location,
           },
-          conditionExpect: {},
+          conditionExpect: {
+            benchPress: null,
+            squat: null,
+            deadLift: null,
+            fitnessYears: null,
+            gender: null,
+            location: null,
+          },
           deletedAt: null,
         },
         { new: true },
@@ -163,6 +172,7 @@ const authService = {
       nickName,
       password,
       introduction: "소개를 입력해주세요.",
+      kakaoID,
       condition: {
         benchPress: 0,
         squat: 0,
@@ -171,7 +181,14 @@ const authService = {
         gender,
         location,
       },
-      conditionExpect: {},
+      conditionExpect: {
+        benchPress: null,
+        squat: null,
+        deadLift: null,
+        fitnessYears: null,
+        gender: null,
+        location: null,
+      },
     });
 
     //비밀번호 암호화 하기

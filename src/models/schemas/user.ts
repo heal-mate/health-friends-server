@@ -13,6 +13,7 @@ export type User = {
   nickName: string;
   profileImageSrc: string;
   introduction: string;
+  kakaoID: string;
   condition: Condition<"POINT">;
   conditionExpect: Condition<"RANGE">;
   matchIds: Array<Types.ObjectId>;
@@ -57,6 +58,10 @@ export const UserSchema = new Schema<User>(
         "https://res.cloudinary.com/djq2j6rkq/image/upload/t_test/v1701853513/dcihbvpm3nvffbz2jzds.png",
     },
     introduction: {
+      type: String,
+      required: true,
+    },
+    kakaoID: {
       type: String,
       required: true,
     },
@@ -114,11 +119,13 @@ export const UserSchema = new Schema<User>(
         gender: {
           type: String,
           enum: [...GENDER, null],
+          default: null,
           required: false,
         },
         location: {
           type: [String],
           enum: [...LOCATION, null],
+          default: null,
           required: false,
         },
       },
