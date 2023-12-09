@@ -7,6 +7,7 @@ import {
   makeRecommendUserFilterCallback,
   makeRecommendUserQuery,
 } from "../utils/documentQueryFn.js";
+import { HttpException } from "../middleware/errorHandler.js";
 
 const userService = {
   async getUser({ id }: { id: Types.ObjectId }) {
