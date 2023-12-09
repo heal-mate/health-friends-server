@@ -5,7 +5,7 @@ import { HttpException } from "../middleware/errorHandler.js";
 const authController = {
   // 이메일 인증번호 보내기
   authCode: asyncHandler(async (req: Request, res: Response) => {
-    await authService.sendEmail(req.body.email);
+    await authService.sendEmail(req.body.email, req.body.isUpdatePassword);
     res.status(200).end();
   }),
 
