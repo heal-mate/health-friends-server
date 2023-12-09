@@ -1,10 +1,12 @@
 import nodemailer from "nodemailer";
-import bcrypt from "bcrypt";
 import { MAX_EXPIRY_MINUTE } from "../config/constants.js";
 import { createAcessToken, createRefreshToken } from "../utils/jwt.js";
 import { Auth, User } from "../models/index.js";
 import { User as UserType } from "../models/schemas/user.js";
 import { HttpException } from "../middleware/errorHandler.js";
+import getHashedPassword from "../utils/getHashedPassword.js";
+import bcrypt from "bcrypt";
+
 const authService = {
   //이메일 전송하기
   async sendEmail(email: string) {
@@ -131,14 +133,17 @@ const authService = {
       );
     }
 
+    console.log("dexletedEmail : ", deletedEmail);
     if (deletedEmail) {
+      const hashedPassword = await getHashedPassword(password);
+      console.log("hashedPassword : ", hashedPassword);
       const newUser = await User.findByIdAndUpdate(
         deletedEmail._id,
         {
           email,
           tel,
           nickName,
-          password,
+          password: hashedPassword,
           introduction: "소개를 입력해주세요.",
           kakaoID,
           condition: {
@@ -161,7 +166,7 @@ const authService = {
         },
         { new: true },
       );
-
+      console.log("new user : ", newUser);
       return { id: newUser?._id };
     }
 
@@ -191,9 +196,7 @@ const authService = {
       },
     });
 
-    //비밀번호 암호화 하기
-    const salt = await bcrypt.genSalt(10); //바이트 단위의 임의의 문자열 salt생성
-    user.password = await bcrypt.hash(user.password, salt); //비밀번호 + salt로 암호화된 비밀번호 생성
+    user.password = await getHashedPassword(user.password); //비밀번호 + salt로 암호화된 비밀번호 생성
 
     const newUser = await user.save(); //새로운 유저 저장
 
