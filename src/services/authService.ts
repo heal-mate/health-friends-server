@@ -110,6 +110,11 @@ const authService = {
 
     //이미 가입된 이메일이 있는지 찾아보기
     const isEmailSaved = await User.findOne({ email, deletedAt: null });
+    // 탈퇴한 계정으로 있는지 확인
+    const deletedEmail = await User.findOne({ email }).exists(
+      "deletedAt",
+      true,
+    );
 
     //이미 DB에 이메일이 있다면
     if (isEmailSaved) {
@@ -123,6 +128,32 @@ const authService = {
         400,
         "8글자 이상, 영문, 숫자, 특수문자 사용해주세요.",
       );
+    }
+
+    if (deletedEmail) {
+      const newUser = await User.findByIdAndUpdate(
+        deletedEmail._id,
+        {
+          email,
+          tel,
+          nickName,
+          password,
+          introduction: "소개를 입력해주세요.",
+          condition: {
+            benchPress: 0,
+            squat: 0,
+            deadLift: 0,
+            fitnessYears: 0,
+            gender,
+            location,
+          },
+          conditionExpect: {},
+          deletedAt: null,
+        },
+        { new: true },
+      );
+
+      return { id: newUser?._id };
     }
 
     //DB에 이메일이 없다면
@@ -141,7 +172,6 @@ const authService = {
         location,
       },
       conditionExpect: {},
-      deletedAt: null,
     });
 
     //비밀번호 암호화 하기
