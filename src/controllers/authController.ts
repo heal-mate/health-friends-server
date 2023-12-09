@@ -19,6 +19,9 @@ const authController = {
   //회원가입하기
   registerUser: asyncHandler(async (req: Request, res: Response) => {
     const newUser = await authService.signUp(req.body);
+    if (newUser) {
+      await authService.removeAuthMail(newUser.email);
+    }
     res.status(200).json(newUser);
   }),
 
@@ -56,6 +59,13 @@ const authController = {
       secure: true,
     });
 
+    res.status(200).end();
+  }),
+
+  // 비밀번호 변경하기
+  updatePassword: asyncHandler(async (req: Request, res: Response) => {
+    const { _id, password } = req.body;
+    await authService.updatePassword({ _id, password });
     res.status(200).end();
   }),
 
