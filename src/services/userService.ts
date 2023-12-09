@@ -3,7 +3,6 @@ import { User } from "../models/index.js";
 import { User as UserType } from "../models/schemas/user.js";
 import { Condition } from "../models/schemas/user.js";
 import { getMessaging } from "firebase-admin/messaging";
-import { HttpException } from "../middleware/errorHandler.js";
 import {
   makeRecommendUserFilterCallback,
   makeRecommendUserQuery,
@@ -45,12 +44,31 @@ const userService = {
       usersRecommended
         // 나의 condition과 추천된 유저들의 conditionExpect를 비교, 필터링
         .filter(makeRecommendUserFilterCallback(myCondition))
+        .map((user) => ({
+          _id: user._id,
+          email: user.email,
+          condition: user.condition,
+          conditionExpect: user.conditionExpect,
+          introduction: user.introduction,
+          nickName: user.nickName,
+          profileImageSrc: user.profileImageSrc,
+        }))
         .slice(0, 5)
     );
   },
 
   async getUserMain(loginUserId: string) {
-    const user = await User.findOne({ _id: loginUserId });
+    const user = (await User.findOne(
+      { _id: loginUserId },
+      {
+        condition: true,
+        conditionExpect: true,
+        email: true,
+        introduction: true,
+        nickName: true,
+        profileImageSrc: true,
+      },
+    ).lean()) as UserType;
     return user;
   },
 
