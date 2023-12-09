@@ -94,7 +94,7 @@ const matchController = {
       await userService.sendWebPushMessage({
         userId: newMatchInfo.senderId,
         title: `[HELF] 매치가 수락되었습니다.`,
-        body: `${user.nickName}님, 매치가 성사되었습니다. 지금 바로 확인해보세요.`,
+        body: `${user.nickName}님과의 매치가 성사되었습니다. 지금 바로 확인해보세요.`,
       });
 
       res.status(200).end();
@@ -126,7 +126,7 @@ const matchController = {
       await userService.sendWebPushMessage({
         userId: newMatchInfo.senderId,
         title: `[HELF] 매치가 거절되었습니다.`,
-        body: `${user.nickName}님, 매치가 거절되었습니다. 지금 바로 확인해보세요.`,
+        body: `${user.nickName}님과의 매치가 거절되었습니다. 지금 바로 확인해보세요.`,
       });
 
       res.status(200).end();
