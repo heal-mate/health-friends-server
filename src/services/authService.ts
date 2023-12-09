@@ -258,15 +258,21 @@ const authService = {
     };
   },
 
-  async updatePassword({ _id, password }: { _id: string; password: string }) {
-    const user = await User.findById(_id);
+  async updatePassword({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    const user = await User.findOne({ email, deletedAt: null });
 
     if (!user) {
       throw new HttpException(400, "해당 유저가 존재하지 않습니다.");
     }
 
     const hashedPassword = await getHashedPassword(password);
-    return await User.findByIdAndUpdate(_id, { password: hashedPassword });
+    return await User.findOneAndUpdate({ email }, { password: hashedPassword });
   },
 
   async withdrawUser({ userId }: { userId: string }) {

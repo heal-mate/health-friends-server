@@ -64,8 +64,8 @@ const authController = {
 
   // 비밀번호 변경하기
   updatePassword: asyncHandler(async (req: Request, res: Response) => {
-    const { _id, password } = req.body;
-    await authService.updatePassword({ _id, password });
+    const { email, password } = req.body.data;
+    await authService.updatePassword({ email, password });
     res.status(200).end();
   }),
 
