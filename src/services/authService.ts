@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 
 const authService = {
   //이메일 전송하기
-  async sendEmail(email: string) {
+  async sendEmail(email: string, isUpdatePassword: boolean = false) {
     if (email === "") {
       throw new HttpException(400, `이메일을 입력해주세요.`);
     }
@@ -19,7 +19,7 @@ const authService = {
     const isEmailSaved = await User.findOne({ email, deletedAt: null });
 
     //이미 DB에 이메일이 있다면
-    if (isEmailSaved) {
+    if (!isUpdatePassword && isEmailSaved) {
       throw new HttpException(400, "이미 등록되어 있는 이메일입니다.");
     }
 
